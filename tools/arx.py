@@ -505,17 +505,41 @@ GITHUB_PAGES_IPS = {
 }
 
 
+def _resolve_doh(name):
+    """Resolve via DNS-over-HTTPS so we bypass the OS/ISP cache.
+
+    getaddrinfo() reports whatever the local resolver has cached, which during
+    a cutover is routinely minutes-to-hours stale and makes it look like the
+    change didn't work. Google's public DoH endpoint answers from upstream.
+    """
+    url = "https://dns.google/resolve?name=%s&type=A" % name
+    j = json.loads(fetch(url, timeout=15))
+    return sorted(a["data"] for a in j.get("Answer", []) if a.get("type") == 1)
+
+
+def _probe(url):
+    """GET a URL, returning the body even for 4xx (which urlopen raises on)."""
+    try:
+        return fetch(url, timeout=15), None
+    except urllib.error.HTTPError as e:
+        try:
+            return e.read().decode("utf-8", "replace"), None
+        except Exception:
+            return None, e
+    except Exception as e:
+        return None, e
+
+
 def cmd_dns():
     """Tell you, plainly, whether the arxangel.gg cutover has happened."""
-    import socket
-
-    step("Checking arxangel.gg")
+    step("Checking arxangel.gg  " + DIM + "(via DNS-over-HTTPS, cache-free)" + OFF)
     try:
-        ips = sorted({r[4][0] for r in socket.getaddrinfo("arxangel.gg", 443,
-                                                          socket.AF_INET,
-                                                          socket.SOCK_STREAM)})
-    except OSError as e:
+        ips = _resolve_doh("arxangel.gg")
+    except Exception as e:
         warn("Could not resolve arxangel.gg: %s" % e)
+        return 1
+    if not ips:
+        warn("No A records found at all.")
         return 1
 
     say("  Resolves to: " + ", ".join(ips))
@@ -523,8 +547,7 @@ def cmd_dns():
     missing = GITHUB_PAGES_IPS - set(ips)
     # Anything that ISN'T GitHub is a leftover record still in the rotation.
     # DNS round-robins across every A record, so even one stray address sends a
-    # share of visitors to the old host. This is the easiest mistake to make
-    # when adding records without removing the old ones.
+    # share of visitors to the old host.
     strays = [ip for ip in ips if ip not in GITHUB_PAGES_IPS]
 
     if missing:
@@ -534,37 +557,52 @@ def cmd_dns():
 
     if strays:
         warn("LEFTOVER record(s) still in rotation: " + ", ".join(strays))
-        share = len(strays) * 100 // max(len(ips), 1)
-        say("  " + RED + "  ~%d%% of visitors will land on the OLD site." % share + OFF)
-        say("  " + DIM + "Delete these A records at Namecheap, then re-run this." + OFF)
+        say("  " + RED + "  ~%d%% of visitors will land on the OLD site."
+            % (len(strays) * 100 // len(ips)) + OFF)
+        say("  " + DIM + "Delete these A records at Namecheap, then re-run." + OFF)
     elif not on_github:
         warn("Not pointing at GitHub Pages at all.")
-        say("  " + DIM + "Add the four A records at Namecheap - see DEPLOY.md part 2." + OFF)
+        say("  " + DIM + "Add the four A records - see DEPLOY.md part 2." + OFF)
 
     step("Checking what the domain actually serves")
-    try:
-        html = fetch("https://arxangel.gg", timeout=15)
-        if "carrd" in html.lower():
-            warn("Still serving the OLD CARRD page.")
-        elif "ARX" in html and "Consequence" in html:
-            ok("Serving the flagship site.")
-        else:
-            say("  " + DIM + "Served something unrecognised (%d bytes)." % len(html) + OFF)
-    except Exception as e:
-        warn("Couldn't fetch https://arxangel.gg : %s" % e)
+    # http first: until GitHub issues the certificate, https fails outright and
+    # would mask what is really going on.
+    served, err = _probe("http://arxangel.gg")
+    if served is None:
+        warn("Couldn't reach arxangel.gg : %s" % err)
+    elif "Site not found" in served and "GitHub Pages" in served:
+        # DNS is right, but Pages has no idea which repo owns this hostname.
+        warn('GitHub says "Site not found".')
+        say("  DNS reaches GitHub, but the custom domain isn't registered.")
+        say("  " + BOLD + "Fix: repo Settings -> Pages -> Custom domain ->"
+            " enter arxangel.gg -> Save." + OFF)
+        say("  " + DIM + "A CNAME file alone does NOT do this when Pages is"
+            " built by GitHub Actions." + OFF)
+    elif "carrd" in served.lower() or "light only" in served:
+        warn("Still serving the OLD CARRD page.")
+    elif "data-music-grid" in served or "Transmissions" in served:
+        ok("Serving the flagship site.")
+    else:
+        say("  " + DIM + "Served something unrecognised (%d bytes)." % len(served) + OFF)
+
+    step("HTTPS certificate")
+    body, err = _probe("https://arxangel.gg")
+    if body is not None:
+        ok("HTTPS works - certificate is issued and valid.")
+    else:
+        warn("HTTPS not ready: %s" % err)
+        say("  " + DIM + "Normal for a few minutes after the domain is"
+            " registered; GitHub requests the cert automatically." + OFF)
 
     step("CNAME file")
     live = os.path.join(SITE, "CNAME")
     pending = os.path.join(ROOT, "CNAME.pending")
     if os.path.exists(live):
-        ok("site/CNAME is active - Pages is set to the custom domain.")
+        ok("site/CNAME ships with the build (keeps the domain set across deploys).")
     elif os.path.exists(pending):
-        say("  " + DIM + "Parked at CNAME.pending (preview URL still works)." + OFF)
-        if on_github:
-            say("  Ready to activate:  " + BOLD + "git mv CNAME.pending site/CNAME"
-                " && git commit -m \"Point Pages at arxangel.gg\" && git push" + OFF)
+        say("  " + DIM + "Parked at CNAME.pending - preview URL still works." + OFF)
     else:
-        warn("No CNAME file anywhere - the custom domain won't stick.")
+        warn("No CNAME file anywhere.")
     return 0
 
 

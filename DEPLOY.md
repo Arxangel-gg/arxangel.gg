@@ -102,22 +102,38 @@ That tells you in plain English whether the records are live, what the domain is
 actually serving, and whether the custom domain is switched on yet. Run it as
 often as you like — it changes nothing.
 
-### 2d. Switch the domain on
+### 2d. Register the domain in Settings  ← required
 
-The domain is parked in `CNAME.pending` at the repo root, where it has no
-effect. That's deliberate: it keeps the `github.io` preview working while DNS is
-still pointed at Carrd. Once `arx.py dns` says the records are live:
+`site/CNAME` is committed and ships with every build, but **that file alone does
+not register the domain** when Pages is built by GitHub Actions (it only works
+that way for the older branch-based Pages). Until you do this, `arxangel.gg`
+returns *"Site not found · GitHub Pages"*.
+
+Open <https://github.com/Arxangel-gg/arxangel.gg/settings/pages>
+
+Under **Custom domain**, type `arxangel.gg`, press **Save**. GitHub verifies DNS
+(already correct) and starts issuing the certificate.
+
+Then wait a few minutes and tick **Enforce HTTPS** on the same page — the
+checkbox stays greyed out until the certificate exists.
+
+Keep `site/CNAME` in the repo: it preserves the setting across deploys, so a
+future build can't silently clear the custom domain.
+
+### 2e. Confirm
 
 ```bash
-git mv CNAME.pending site/CNAME
-git commit -m "Point Pages at arxangel.gg"
-git push
+python tools/arx.py dns
 ```
 
-(Or say the word and I'll run it.)
+All four sections should come back green:
 
-Then back in **Settings → Pages**, wait for the certificate to be issued — a few
-minutes, occasionally up to an hour — and tick **Enforce HTTPS**.
+```
+OK  All four GitHub A records are live.
+OK  Serving the flagship site.
+OK  HTTPS works - certificate is issued and valid.
+OK  site/CNAME ships with the build.
+```
 
 ---
 
