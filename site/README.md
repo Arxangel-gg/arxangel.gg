@@ -168,7 +168,7 @@ site, with the **full experience** (nav, intro, hero, FX, sound). In Carrd add a
   internal scrolling all behave exactly like the standalone site.
 - The `background:#07060a` avoids a white flash before the site paints.
 - Swap the `src` for whichever URL is serving the site — your
-  `YOUR-USERNAME.github.io` address, or `arxangel.gg` once DNS is cut over.
+  `arxangel-gg.github.io` address, or `arxangel.gg` once DNS is cut over.
 
 ### B) Inline widget (optional) — boxed panel inside a normal Carrd layout
 
@@ -212,7 +212,7 @@ In `js/config.js` add **every** domain that serves the page:
 ```js
 embeds: {
   twitchChannel: "arxangel_gg",
-  twitchParents: ["arxangel.gg", "your-username.github.io", "localhost"],
+  twitchParents: ["arxangel.gg", "arxangel-gg.github.io", "localhost"],
 }
 ```
 

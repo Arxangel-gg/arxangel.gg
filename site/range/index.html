@@ -105,7 +105,10 @@
       <span><kbd>1</kbd>–<kbd>5</kbd> quick start</span>
       <span><kbd>ESC</kbd> pause</span>
       <span><kbd>R</kbd> restart</span>
-      <a class="foot-brand" href="/" aria-label="Back to ARXANGEL">← arxangel.gg</a>
+      <!-- Relative, not "/": this also has to work when the site is served from a
+           project subpath (e.g. arxangel-gg.github.io/arxangel.gg/) before the
+           custom domain is cut over. -->
+      <a class="foot-brand" href="../" aria-label="Back to ARXANGEL">← arxangel.gg</a>
     </footer>
   </div>
 </section>

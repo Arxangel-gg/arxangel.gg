@@ -13,59 +13,32 @@ you drop a track on Spotify
 
 ---
 
-## Part 1 — one-time setup
+## Part 1 — one-time setup  ✅ DONE
 
-You only ever do this once. It takes about ten minutes, and steps 1–3 are the
-only ones that must happen before the site is live.
+Repo: <https://github.com/Arxangel-gg/arxangel.gg> (public)
+Live preview: <https://arxangel-gg.github.io/arxangel.gg/>
 
-### 1. Create the repo on GitHub
+This is already wired up — the remote is set, everything is pushed, and
+`deploy.yml` uses `enablement: true` so GitHub Pages switched itself on without
+anyone visiting Settings. Nothing here needs redoing.
 
-Go to <https://github.com/new>.
-
-| Field | Value |
-|---|---|
-| Repository name | `arxangel.gg` (anything works) |
-| Visibility | **Public** |
-| Initialize with README / .gitignore / licence | **leave all unticked** |
-
-> **Why public?** GitHub Pages only serves from private repos on a paid plan.
-> This costs you nothing in secrecy — every file in `site/` is already sent to
-> anyone who visits the site, and the Supabase key in `site/range/app.js` is the
-> *anon* key, which is designed to be public and is locked down by row-level
-> security. There are no credentials in this repo.
-
-### 2. Push this folder to it
-
-Copy the URL GitHub shows you, then run these from `E:\Migrated\AppDev\Arxangel.gg`:
-
-```bash
-git remote add origin https://github.com/YOUR-USERNAME/arxangel.gg.git
-git push -u origin main
-```
-
-Git will ask you to sign in to GitHub the first time. Use the browser prompt.
-
-### 3. Turn on Pages
-
-In your repo: **Settings → Pages → Build and deployment → Source**, choose
-**GitHub Actions**. That is the whole configuration — don't pick a branch.
-
-Now open the **Actions** tab. The "Deploy site" workflow runs and, about a
-minute later, your site is live at:
-
-```
-https://YOUR-USERNAME.github.io/arxangel.gg/
-```
-
-**Check it works at this URL before doing step 4.** If the page loads and the
-music grid shows six tracks, the hard part is done.
+> **A note on GitHub Desktop.** It had cloned the empty repo into a nested
+> `arxangel.gg\` folder *inside* the project. That empty clone was removed and
+> the real project folder now has the remote instead. If you want the project in
+> Desktop, use **File → Add local repository →**
+> `E:\Migrated\AppDev\Arxangel.gg`. You don't need Desktop for anything —
+> `RELEASE.bat` does the committing and pushing for you.
 
 ---
 
 ## Part 2 — pointing arxangel.gg at it
 
 Right now `arxangel.gg` still serves the **old Carrd page**. This step retires
-it. Do it once you're happy with how the site looks on the `github.io` URL.
+it. Do it once you're happy with how the site looks at
+<https://arxangel-gg.github.io/arxangel.gg/>.
+
+**This is the only part that needs you.** It's four DNS records and two
+settings — everything else is already done and running.
 
 Your DNS is at **Cloudflare**. In the Cloudflare dashboard → your domain → **DNS**:
 
@@ -94,7 +67,7 @@ Four `AAAA` records, also on the root:
 2606:50c0:8003::153
 ```
 
-One `CNAME` for `www` → `YOUR-USERNAME.github.io`
+One `CNAME` for `www` → `arxangel-gg.github.io`
 
 ### 4c. ⚠️ Two Cloudflare settings that will bite you
 
@@ -110,12 +83,22 @@ These are the classic ways this goes wrong:
    (strict)" — never "Flexible".** Flexible mode plus GitHub's own
    HTTPS redirect produces an infinite redirect loop.
 
-### 4d. Finish in GitHub
+### 4d. Switch the domain on
 
-`site/CNAME` already contains `arxangel.gg`, so GitHub picks the domain up
-automatically on the next deploy. In **Settings → Pages**, wait for the
-certificate to be issued (a few minutes to an hour), then tick
-**Enforce HTTPS**.
+The domain is parked in `CNAME.pending` at the repo root, where it has no
+effect — that's deliberate, so the `github.io` preview URL keeps working while
+you get DNS right. Once the records above are saved, activate it:
+
+```bash
+git mv CNAME.pending site/CNAME
+git commit -m "Point Pages at arxangel.gg"
+git push
+```
+
+(Or just say the word and I'll run it.)
+
+Then in **Settings → Pages**, wait for the certificate to be issued (a few
+minutes, occasionally up to an hour), and tick **Enforce HTTPS**.
 
 ---
 

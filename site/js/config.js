@@ -92,9 +92,8 @@ export const CONFIG = {
     // host is added automatically; list any OTHER ancestor domains here too —
     // your custom domain AND, if you embed the site in Carrd, your Carrd domain
     // (e.g. "yoursite.carrd.co"), since Twitch sits two iframes deep.
-    // The host actually serving the page is added automatically at runtime, so
-    // the *.github.io fallback URL works without being listed here.
-    twitchParents: ["arxangel.gg", "www.arxangel.gg", "localhost"],
+    // The host serving the page is also added automatically at runtime.
+    twitchParents: ["arxangel.gg", "www.arxangel.gg", "arxangel-gg.github.io", "localhost"],
     // Optional existing micro-apps (kept off by default to stay fast & premium).
     consoleUrl: "https://sunny-sunshine-29825a.netlify.app",
     betsUrl:    "https://marvelous-biscotti-6276f1.netlify.app",

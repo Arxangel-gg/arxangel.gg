@@ -42,7 +42,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # enablement:true turns GitHub Pages on via the API if it isn't already,
+      # so there is no "Settings -> Pages" click needed to bootstrap the site.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload site/
         uses: actions/upload-pages-artifact@v3
