@@ -10,7 +10,7 @@
    Only loaded when motion is allowed, data-saver is off, and not embedded.
    ========================================================================== */
 
-import { clamp, rand } from "../env.js?v=3";
+import { clamp, rand } from "../env.js?v=4";
 
 export function init() {
   const host = document.getElementById("ax-fx");
