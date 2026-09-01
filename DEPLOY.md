@@ -13,81 +13,87 @@ you drop a track on Spotify
 
 ---
 
-## Part 1 — one-time setup  ✅ DONE
+## Part 1 — setup
 
 Repo: <https://github.com/Arxangel-gg/arxangel.gg> (public)
-Live preview: <https://arxangel-gg.github.io/arxangel.gg/>
+Preview URL (once step 1 is done): <https://arxangel-gg.github.io/arxangel.gg/>
 
-This is already wired up — the remote is set, everything is pushed, and
-`deploy.yml` uses `enablement: true` so GitHub Pages switched itself on without
-anyone visiting Settings. Nothing here needs redoing.
+Everything is pushed and the workflows are in place. **One switch is left**, and
+it can only be flipped by a human — GitHub deliberately won't let a workflow
+token create a Pages site that has never existed:
+
+### ⬅ The one thing you have to do
+
+Open <https://github.com/Arxangel-gg/arxangel.gg/settings/pages>
+
+Under **Build and deployment → Source**, change `Deploy from a branch` to
+**GitHub Actions**. Don't pick a branch, don't save anything else — that
+dropdown is the whole task.
+
+Then tell me and I'll kick the deploy off, or hit **Re-run all jobs** on
+<https://github.com/Arxangel-gg/arxangel.gg/actions> yourself.
 
 > **A note on GitHub Desktop.** It had cloned the empty repo into a nested
 > `arxangel.gg\` folder *inside* the project. That empty clone was removed and
-> the real project folder now has the remote instead. If you want the project in
-> Desktop, use **File → Add local repository →**
-> `E:\Migrated\AppDev\Arxangel.gg`. You don't need Desktop for anything —
-> `RELEASE.bat` does the committing and pushing for you.
+> the real project folder now has the remote. If you want the project in
+> Desktop: **File → Add local repository → `E:\Migrated\AppDev\Arxangel.gg`**.
+> You don't need Desktop for anything — `RELEASE.bat` commits and pushes for you.
 
 ---
 
 ## Part 2 — pointing arxangel.gg at it
 
-Right now `arxangel.gg` still serves the **old Carrd page**. This step retires
-it. Do it once you're happy with how the site looks at
-<https://arxangel-gg.github.io/arxangel.gg/>.
+Right now `arxangel.gg` serves the **old Carrd page**. Do this once you've seen
+the site working at the preview URL above.
 
-**This is the only part that needs you.** It's four DNS records and two
-settings — everything else is already done and running.
+**Your DNS is at Namecheap**, not Cloudflare. (The domain resolves to a
+Cloudflare IP, but that's *Carrd's* CDN sitting in front of their hosting, not
+anything you control — so there are no proxy or SSL-mode settings to worry
+about. This is simpler than it looks.)
 
-Your DNS is at **Cloudflare**. In the Cloudflare dashboard → your domain → **DNS**:
+Go to **Namecheap → Domain List → `arxangel.gg` → Manage → Advanced DNS**.
 
-### 4a. Delete the old records
+### 2a. Remove the old records
 
-Remove the existing `A` / `CNAME` records for `arxangel.gg` and `www` that
-point at Carrd. (Screenshot them first if you want a way back.)
+Delete the existing `A Record` / `ALIAS` / `CNAME` entries for host `@` and
+host `www` that currently point at Carrd. Screenshot them first if you want a
+way back.
 
-### 4b. Add GitHub's records
+### 2b. Add GitHub's records
 
-Four `A` records on the root (`@` / `arxangel.gg`):
+Four **A Records**, all with host `@`:
 
+| Type | Host | Value |
+|---|---|---|
+| A Record | `@` | `185.199.108.153` |
+| A Record | `@` | `185.199.109.153` |
+| A Record | `@` | `185.199.110.153` |
+| A Record | `@` | `185.199.111.153` |
+
+One **CNAME Record**:
+
+| Type | Host | Value |
+|---|---|---|
+| CNAME Record | `www` | `arxangel-gg.github.io.` |
+
+Leave TTL on `Automatic`. Namecheap usually applies changes within half an
+hour, sometimes a couple of minutes.
+
+### 2c. Check it landed
+
+```bash
+python tools/arx.py dns
 ```
-185.199.108.153
-185.199.109.153
-185.199.110.153
-185.199.111.153
-```
 
-Four `AAAA` records, also on the root:
+That tells you in plain English whether the records are live, what the domain is
+actually serving, and whether the custom domain is switched on yet. Run it as
+often as you like — it changes nothing.
 
-```
-2606:50c0:8000::153
-2606:50c0:8001::153
-2606:50c0:8002::153
-2606:50c0:8003::153
-```
-
-One `CNAME` for `www` → `arxangel-gg.github.io`
-
-### 4c. ⚠️ Two Cloudflare settings that will bite you
-
-These are the classic ways this goes wrong:
-
-1. **Set the proxy status to "DNS only" (grey cloud), not "Proxied" (orange).**
-   GitHub has to reach your domain over plain HTTP once to issue the free
-   HTTPS certificate. With the orange cloud on, that check fails and you get
-   stuck on "certificate provisioning" forever. You can switch the proxy back
-   on later, after the certificate is issued, if you want Cloudflare's CDN.
-
-2. **If you do re-enable the proxy, set SSL/TLS mode to "Full" or "Full
-   (strict)" — never "Flexible".** Flexible mode plus GitHub's own
-   HTTPS redirect produces an infinite redirect loop.
-
-### 4d. Switch the domain on
+### 2d. Switch the domain on
 
 The domain is parked in `CNAME.pending` at the repo root, where it has no
-effect — that's deliberate, so the `github.io` preview URL keeps working while
-you get DNS right. Once the records above are saved, activate it:
+effect. That's deliberate: it keeps the `github.io` preview working while DNS is
+still pointed at Carrd. Once `arx.py dns` says the records are live:
 
 ```bash
 git mv CNAME.pending site/CNAME
@@ -95,10 +101,10 @@ git commit -m "Point Pages at arxangel.gg"
 git push
 ```
 
-(Or just say the word and I'll run it.)
+(Or say the word and I'll run it.)
 
-Then in **Settings → Pages**, wait for the certificate to be issued (a few
-minutes, occasionally up to an hour), and tick **Enforce HTTPS**.
+Then back in **Settings → Pages**, wait for the certificate to be issued — a few
+minutes, occasionally up to an hour — and tick **Enforce HTTPS**.
 
 ---
 

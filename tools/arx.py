@@ -15,6 +15,7 @@
 #    python tools/arx.py add <spotify-url> -> add one release by hand
 #    python tools/arx.py refresh           -> force a cache-bust + push
 #    python tools/arx.py status            -> what's local vs what's live
+#    python tools/arx.py dns               -> has arxangel.gg switched over yet?
 #
 #  Python 3.8+. Standard library only.
 # ============================================================================
@@ -495,6 +496,67 @@ def cmd_status():
     return 0
 
 
+# GitHub Pages' four apex A records. If arxangel.gg resolves to these, DNS is
+# pointed at GitHub; anything else means the cutover hasn't landed (or hasn't
+# propagated yet).
+GITHUB_PAGES_IPS = {
+    "185.199.108.153", "185.199.109.153",
+    "185.199.110.153", "185.199.111.153",
+}
+
+
+def cmd_dns():
+    """Tell you, plainly, whether the arxangel.gg cutover has happened."""
+    import socket
+
+    step("Checking arxangel.gg")
+    try:
+        ips = sorted({r[4][0] for r in socket.getaddrinfo("arxangel.gg", 443,
+                                                          socket.AF_INET,
+                                                          socket.SOCK_STREAM)})
+    except OSError as e:
+        warn("Could not resolve arxangel.gg: %s" % e)
+        return 1
+
+    say("  Resolves to: " + ", ".join(ips))
+    on_github = bool(set(ips) & GITHUB_PAGES_IPS)
+    missing = GITHUB_PAGES_IPS - set(ips)
+
+    if on_github and not missing:
+        ok("DNS is pointed at GitHub Pages. All four A records are live.")
+    elif on_github:
+        warn("Partly there - still missing: " + ", ".join(sorted(missing)))
+    else:
+        warn("Still pointing somewhere else (the old Carrd page).")
+        say("  " + DIM + "Add the four A records at Namecheap - see DEPLOY.md part 2." + OFF)
+
+    step("Checking what the domain actually serves")
+    try:
+        html = fetch("https://arxangel.gg", timeout=15)
+        if "carrd" in html.lower():
+            warn("Still serving the OLD CARRD page.")
+        elif "ARX" in html and "Consequence" in html:
+            ok("Serving the flagship site.")
+        else:
+            say("  " + DIM + "Served something unrecognised (%d bytes)." % len(html) + OFF)
+    except Exception as e:
+        warn("Couldn't fetch https://arxangel.gg : %s" % e)
+
+    step("CNAME file")
+    live = os.path.join(SITE, "CNAME")
+    pending = os.path.join(ROOT, "CNAME.pending")
+    if os.path.exists(live):
+        ok("site/CNAME is active - Pages is set to the custom domain.")
+    elif os.path.exists(pending):
+        say("  " + DIM + "Parked at CNAME.pending (preview URL still works)." + OFF)
+        if on_github:
+            say("  Ready to activate:  " + BOLD + "git mv CNAME.pending site/CNAME"
+                " && git commit -m \"Point Pages at arxangel.gg\" && git push" + OFF)
+    else:
+        warn("No CNAME file anywhere - the custom domain won't stick.")
+    return 0
+
+
 MENU = """
 {gold}  ARXANGEL - RELEASE CONSOLE{off}
 {dim}  ---------------------------------------------------{off}
@@ -503,6 +565,7 @@ MENU = """
   3)  Force refresh    {dim}- bust caches and republish{off}
   4)  Add by link      {dim}- paste a Spotify URL{off}
   5)  Status           {dim}- local vs Spotify vs git{off}
+  6)  Domain check     {dim}- has arxangel.gg switched over yet?{off}
   0)  Exit
 """
 
@@ -525,6 +588,8 @@ def menu():
         return 0
     if choice == "5":
         return cmd_status()
+    if choice == "6":
+        return cmd_dns()
     return 0
 
 
@@ -534,6 +599,7 @@ USAGE = """  Commands:
     refresh   force a cache-bust and republish
     add URL   add one release from a Spotify link
     status    compare local / Spotify / git
+    dns       check whether arxangel.gg has switched over to GitHub Pages
 """
 
 
@@ -553,6 +619,8 @@ def main(argv):
             return cmd_refresh()
         if cmd == "status":
             return cmd_status()
+        if cmd == "dns":
+            return cmd_dns()
         if cmd == "add":
             if len(argv) < 2:
                 warn("Usage: python tools/arx.py add <spotify-url>")
