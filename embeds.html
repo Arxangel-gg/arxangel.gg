@@ -1,0 +1,1875 @@
+≡✠≡ ARXΛNGΞL ≡✠≡
+Ordained by Chaos. Forged in Fire. Unleashed in Glory.
+“The Arxangel is not born — he is summoned.
+Where liberty fades and chaos spreads, a singular force descends with fire and divine wrath.
+The battlefield is his cathedral.
+The mission, sacred.”
+
+<div style="width:100%;max-width:880px;margin:0 auto;">
+<iframe
+id="axConsoleFrame"
+title="Arxangel Console"
+src="https://sunny-sunshine-29825a.netlify.app"
+style="width:100%;height:280px;border:0;display:block;border-radius:18px;background:transparent;overflow:hidden;"
+loading="lazy"
+referrerpolicy="strict-origin-when-cross-origin"
+allow="autoplay; fullscreen"
+></iframe>
+</div>
+
+<script>
+(() => {
+if (window.__AX_CONSOLE_BRIDGE__) return;
+window.__AX_CONSOLE_BRIDGE__ = true;
+
+const f = document.getElementById("axConsoleFrame");
+if (!f) return;
+
+const getAllowedOrigin = () => {
+try { return new URL(f.src).origin; } catch(_) { return ""; }
+};
+
+const sendContext = () => {
+try {
+f.contentWindow.postMessage({
+type: "AX_EMBED_CONTEXT",
+host: location.hostname,
+origin: location.origin
+}, getAllowedOrigin() || "*");
+} catch(_) {}
+};
+
+window.addEventListener("message", (e) => {
+const allowed = getAllowedOrigin();
+if (!allowed) return;
+
+// Child can request context if parent loads late
+if (e.data && e.data.type === "AX_REQUEST_CONTEXT") {
+sendContext();
+return;
+}
+
+// Only accept resize messages from the iframe origin
+if (e.origin !== allowed) return;
+
+const d = e.data;
+if (!d || d.type !== "AX_CONSOLE_RESIZE") return;
+
+const h = Number(d.height || 0);
+if (!isFinite(h) || h < 220) return;
+
+f.style.height = Math.min(Math.max(h, 240), 1400) + "px";
+}, { passive: true });
+
+f.addEventListener("load", () => {
+sendContext();
+setTimeout(sendContext, 250);
+setTimeout(sendContext, 900);
+}, { passive: true });
+
+setTimeout(sendContext, 400);
+})();
+</script>
+
+
+<!-- ARXANGEL • ONE-SHOT BGM v2 (audible autoplay attempt + first-gesture fallback) -->
+<style>
+:root{
+--ax-ivory:#faefc5;
+--ax-gold:#e5bd6d;
+--ax-amber:#bc823d;
+}
+#ax-bgm-pill{
+position: fixed;
+right: 14px;
+bottom: 14px;
+z-index: 2147483000;
+display: inline-flex;
+align-items: center;
+gap: 10px;
+padding: 10px 12px;
+border-radius: 999px;
+border: 1px solid rgba(229,189,109,.30);
+background: linear-gradient(180deg, rgba(229,189,109,.20), rgba(0,0,0,.46));
+box-shadow:
+0 18px 60px rgba(0,0,0,.55),
+0 0 0 1px rgba(188,130,61,.10) inset,
+0 0 26px rgba(229,189,109,.12);
+color: rgba(250,239,197,.94);
+font: 800 12px/1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+letter-spacing: .12em;
+text-transform: uppercase;
+cursor: pointer;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
+opacity: 0;
+transform: translateY(8px);
+transition: opacity .28s ease, transform .28s ease, filter .2s ease;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+will-change: opacity, transform;
+}
+#ax-bgm-pill:hover{ filter: brightness(1.06); }
+#ax-bgm-pill:active{ transform: translateY(9px) scale(.99); }
+#ax-bgm-pill.ax-show{ opacity: 1; transform: translateY(0); }
+#ax-bgm-pill.ax-hide{ opacity: 0; transform: translateY(8px); }
+
+#ax-bgm-dot{
+width: 10px; height: 10px; border-radius: 999px;
+background: rgba(229,189,109,.95);
+box-shadow: 0 0 0 1px rgba(250,239,197,.25) inset, 0 0 22px rgba(229,189,109,.50);
+animation: axPulse 1.6s ease-in-out infinite;
+}
+@keyframes axPulse{
+0%,100%{ transform: scale(1); opacity:.9; }
+50%{ transform: scale(1.12); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce){
+#ax-bgm-pill{ transition:none; }
+#ax-bgm-dot{ animation:none; }
+}
+</style>
+
+<script>
+(() => {
+// ======================
+// CONFIG
+// ======================
+const AUDIO_URL = "https://glkkdqmeumaxfjlctxuo.supabase.co/storage/v1/object/public/playlistarxangel/Arxangel%20-%20Summoned%20-%20ASMR.mp3";
+
+const TARGET_VOLUME = 0.22;
+const FADE_IN_MS = 1100;
+const FADE_OUT_SECONDS = 9;
+const HIDE_BUTTON_MS = 420;
+
+const LABEL_ENABLE = "ARXΛNGΞL";
+const LABEL_HINT = "Welcomes you";
+const LABEL_MUTE = "MUTE";
+const LABEL_UNMUTE = "UNMUTE";
+
+if (window.__AX_BGM_ONESHOT_V3__) return;
+window.__AX_BGM_ONESHOT_V3__ = true;
+
+if (!AUDIO_URL) return;
+
+const SAVE = !!(navigator.connection && navigator.connection.saveData);
+const COARSE = matchMedia("(pointer:coarse)").matches;
+
+const clamp01 = n => Math.max(0, Math.min(1, n));
+const smoothstep = t => t*t*(3-2*t);
+
+// Preconnect for faster first buffer
+try{
+const o = new URL(AUDIO_URL).origin;
+if (!document.querySelector(`link[rel="preconnect"][href="${o}"]`)){
+const link = document.createElement("link");
+link.rel = "preconnect";
+link.href = o;
+link.crossOrigin = "anonymous";
+document.head.appendChild(link);
+}
+}catch(e){}
+
+const btn = document.createElement("button");
+btn.id = "ax-bgm-pill";
+btn.type = "button";
+btn.setAttribute("aria-label", "Background audio control");
+btn.innerHTML = `<span id="ax-bgm-dot" aria-hidden="true"></span><span id="ax-bgm-label">${LABEL_MUTE}</span>`;
+document.body.appendChild(btn);
+const labelEl = btn.querySelector("#ax-bgm-label");
+
+const showBtn = () => { btn.classList.add("ax-show"); btn.classList.remove("ax-hide"); };
+const hideBtn = () => {
+btn.classList.add("ax-hide"); btn.classList.remove("ax-show");
+setTimeout(() => { try{ btn.remove(); }catch(e){} }, HIDE_BUTTON_MS);
+};
+
+// Audio
+const audio = new Audio();
+audio.src = AUDIO_URL;
+// "metadata" by default to avoid downloading the whole file on Save-Data /
+// touch devices where autoplay is most likely to be blocked anyway.
+audio.preload = (SAVE || COARSE) ? "metadata" : "auto";
+audio.loop = false;
+audio.playsInline = true;
+audio.crossOrigin = "anonymous";
+audio.muted = false;
+audio.volume = 0;
+
+let fadeTimer = null;
+let fadeOutArmed = false;
+let started = false;
+let blocked = false;
+let teardown = false;
+
+const clearFade = () => { if (fadeTimer){ clearInterval(fadeTimer); fadeTimer = null; } };
+
+function fadeTo(target, ms, done){
+clearFade();
+const start = audio.volume;
+const end = clamp01(target);
+const steps = Math.max(14, Math.floor(ms / 40));
+let i = 0;
+fadeTimer = setInterval(() => {
+i++;
+const t = smoothstep(i / steps);
+audio.volume = clamp01(start + (end - start) * t);
+if (i >= steps){
+clearFade();
+audio.volume = end;
+done && done();
+}
+}, Math.floor(ms / steps));
+}
+
+function setPlayingLabel(){
+labelEl.textContent = audio.muted ? LABEL_UNMUTE : LABEL_MUTE;
+}
+function setBlockedLabel(){
+labelEl.textContent = `${LABEL_ENABLE} • ${LABEL_HINT}`;
+}
+
+btn.addEventListener("click", () => {
+if (!started && blocked){
+startFromGesture();
+return;
+}
+if (!started) return;
+audio.muted = !audio.muted;
+setPlayingLabel();
+if (!audio.muted){
+fadeTo(TARGET_VOLUME, 220);
+}
+});
+
+audio.addEventListener("timeupdate", () => {
+if (fadeOutArmed) return;
+const d = audio.duration;
+if (!isFinite(d) || d <= 0) return;
+const remaining = d - audio.currentTime;
+if (remaining <= FADE_OUT_SECONDS){
+fadeOutArmed = true;
+fadeTo(0, Math.max(500, FADE_OUT_SECONDS * 1000));
+}
+});
+
+audio.addEventListener("ended", () => {
+hideBtn();
+cleanupGestureListeners();
+});
+
+audio.addEventListener("error", () => {
+hideBtn();
+cleanupGestureListeners();
+});
+
+const gestureEvents = ["pointerdown","touchstart","mousedown","keydown","wheel"];
+function onFirstGesture(){ startFromGesture(); }
+function addGestureListeners(){
+gestureEvents.forEach(ev => {
+window.addEventListener(ev, onFirstGesture, { once:true, passive:true, capture:true });
+});
+}
+function cleanupGestureListeners(){
+gestureEvents.forEach(ev => {
+window.removeEventListener(ev, onFirstGesture, { capture:true });
+});
+}
+
+async function startPlayback(){
+// Ensure the file is being fetched before play() — important when preload was "metadata"
+if (audio.preload !== "auto"){ audio.preload = "auto"; audio.load(); }
+audio.muted = false;
+await audio.play();
+if (teardown) return;
+started = true;
+blocked = false;
+showBtn();
+setPlayingLabel();
+fadeTo(TARGET_VOLUME, FADE_IN_MS);
+}
+
+function startFromGesture(){
+cleanupGestureListeners();
+startPlayback().catch(() => {
+blocked = true;
+showBtn();
+setBlockedLabel();
+addGestureListeners();
+});
+}
+
+function init(){
+startPlayback().catch(() => {
+blocked = true;
+showBtn();
+setBlockedLabel();
+addGestureListeners();
+});
+}
+
+// Stop trying if the page is being torn down
+window.addEventListener("pagehide", () => {
+teardown = true;
+cleanupGestureListeners();
+clearFade();
+try { audio.pause(); } catch(e){}
+}, { once:true });
+
+if (document.readyState === "loading"){
+document.addEventListener("DOMContentLoaded", init, { once:true });
+} else {
+init();
+}
+})();
+</script>
+
+
+<!-- ARXANGEL WELCOME INTRO (Carrd Embed) v2 -->
+<div id="ax-intro-anchor" style="display:none !important;"></div>
+
+<!-- Preconnect to Google Fonts (both hosts so woff2 starts early) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" media="all">
+
+<style>
+:root{
+--ax-ivory:#faefc5;
+--ax-gold:#e5bd6d;
+--ax-amber:#bc823d;
+--ax-bronze:#945019;
+--ax-shadow:#200e03;
+}
+
+#ax-intro,
+#ax-intro *{ box-sizing:border-box; }
+
+#ax-intro{
+position:fixed;
+inset:0;
+z-index:2147483647;
+display:grid;
+place-items:center;
+background: radial-gradient(1200px 800px at 50% 45%,
+rgba(229,189,109,.10) 0%,
+rgba(188,130,61,.06) 35%,
+rgba(0,0,0,.78) 70%,
+rgba(0,0,0,.92) 100%);
+opacity:0;
+pointer-events:none;
+transition: opacity 900ms cubic-bezier(.2,.8,.2,1);
+overflow:hidden;
+contain:strict;
+}
+
+#ax-intro.ax-show{ opacity:1; pointer-events:auto; }
+#ax-intro.ax-hide{ opacity:0; pointer-events:none; }
+
+/* Soft vignette + film glow */
+#ax-intro::before{
+content:"";
+position:absolute; inset:-2px;
+background:
+radial-gradient(900px 700px at 50% 48%, rgba(250,239,197,.10), transparent 60%),
+radial-gradient(900px 900px at 50% 60%, rgba(229,189,109,.08), transparent 70%),
+radial-gradient(1200px 900px at 50% 50%, transparent 55%, rgba(0,0,0,.88) 100%);
+opacity:.9;
+pointer-events:none;
+}
+
+/* Subtle scanline shimmer */
+#ax-intro::after{
+content:"";
+position:absolute; inset:0;
+background:
+repeating-linear-gradient(
+to bottom,
+rgba(255,255,255,.04) 0px,
+rgba(255,255,255,.00) 2px,
+rgba(0,0,0,.00) 6px
+);
+mix-blend-mode: overlay;
+opacity:.08;
+pointer-events:none;
+transform: translateZ(0);
+animation: ax-scan 6.5s linear infinite;
+}
+@keyframes ax-scan{
+0%{ transform: translateY(-10px); opacity:.06; }
+50%{ opacity:.10; }
+100%{ transform: translateY(10px); opacity:.06; }
+}
+
+#axfx{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+pointer-events:none;
+}
+
+.ax-wrap{
+position:relative;
+width:min(980px, 92vw);
+display:grid;
+justify-items:center;
+gap:18px;
+padding: clamp(18px, 3.5vw, 38px);
+text-align:center;
+isolation:isolate;
+}
+
+.ax-card{
+position:relative;
+width:100%;
+border-radius: 26px;
+padding: clamp(16px, 3vw, 26px);
+background: linear-gradient(180deg,
+rgba(250,239,197,.06),
+rgba(229,189,109,.03) 45%,
+rgba(0,0,0,.35));
+border: 1px solid rgba(229,189,109,.18);
+box-shadow:
+0 18px 70px rgba(0,0,0,.55),
+0 0 0 1px rgba(188,130,61,.10) inset;
+-webkit-backdrop-filter: blur(10px) saturate(1.15);
+backdrop-filter: blur(10px) saturate(1.15);
+overflow:hidden;
+}
+
+.ax-card::before{
+content:"";
+position:absolute; inset:-1px;
+background: radial-gradient(700px 240px at 50% 0%,
+rgba(229,189,109,.18),
+transparent 60%);
+opacity:.65;
+pointer-events:none;
+}
+
+.ax-figure{
+position:relative;
+display:grid;
+place-items:center;
+margin: 8px auto 10px;
+}
+
+.ax-img{
+width:min(520px, 78vw);
+max-height:min(72vh, 780px);
+height:auto;
+aspect-ratio: 2 / 3;
+object-fit:contain;
+filter:
+drop-shadow(0 18px 45px rgba(0,0,0,.65))
+drop-shadow(0 0 28px rgba(229,189,109,.20));
+transform: translateY(10px) scale(.985);
+opacity:0;
+animation: ax-rise 1200ms cubic-bezier(.2,.9,.2,1) 250ms forwards;
+user-select:none;
+-webkit-user-drag:none;
+}
+
+@keyframes ax-rise{
+to{ transform: translateY(0) scale(1); opacity:1; }
+}
+
+/* Halo bloom behind the image */
+.ax-figure::before{
+content:"";
+position:absolute;
+width:min(640px, 92vw);
+height:min(640px, 92vw);
+border-radius:999px;
+background:
+radial-gradient(circle at 50% 50%,
+rgba(250,239,197,.22) 0%,
+rgba(229,189,109,.14) 28%,
+rgba(188,130,61,.08) 48%,
+transparent 68%);
+filter: blur(10px);
+opacity:.85;
+transform: translateY(-6px);
+pointer-events:none;
+z-index:-1;
+animation: ax-pulse 2.6s ease-in-out infinite;
+}
+@keyframes ax-pulse{
+0%,100%{ transform: translateY(-6px) scale(1); opacity:.75; }
+50%{ transform: translateY(-6px) scale(1.03); opacity:.95; }
+}
+
+.ax-title{
+font-family: "Cinzel", ui-serif, Georgia, "Times New Roman", serif;
+letter-spacing: .14em;
+text-transform: uppercase;
+font-weight: 800;
+font-size: clamp(16px, 2.6vw, 22px);
+color: rgba(250,239,197,.96);
+text-shadow: 0 2px 14px rgba(229,189,109,.20);
+margin-top: 8px;
+opacity:0;
+transform: translateY(8px);
+animation: ax-text-in 900ms cubic-bezier(.2,.9,.2,1) 650ms forwards;
+position:relative;
+display:inline-block;
+padding: 10px 14px;
+}
+
+.ax-sub{
+font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+font-size: clamp(13px, 2.1vw, 15px);
+color: rgba(250,239,197,.78);
+margin-top: 8px;
+opacity:0;
+transform: translateY(10px);
+animation: ax-text-in 900ms cubic-bezier(.2,.9,.2,1) 850ms forwards;
+}
+.ax-sub b{ color: rgba(229,189,109,.95); font-weight: 700; }
+
+@keyframes ax-text-in{ to{ opacity:1; transform: translateY(0); } }
+
+/* Shimmer sweep across the title */
+.ax-title::after{
+content:"";
+position:absolute; inset:0;
+background: linear-gradient(110deg,
+transparent 0%,
+rgba(250,239,197,.18) 35%,
+rgba(229,189,109,.35) 50%,
+rgba(250,239,197,.18) 65%,
+transparent 100%);
+transform: translateX(-120%);
+mix-blend-mode: screen;
+opacity:.85;
+animation: ax-sweep 2.8s ease-in-out infinite;
+pointer-events:none;
+border-radius: 16px;
+}
+@keyframes ax-sweep{
+0%{ transform: translateX(-140%); opacity:.0; }
+25%{ opacity:.85; }
+55%{ transform: translateX(140%); opacity:.65; }
+100%{ transform: translateX(140%); opacity:0; }
+}
+
+.ax-hint{
+margin-top: 10px;
+font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+font-size: 12px;
+letter-spacing:.08em;
+text-transform: uppercase;
+color: rgba(250,239,197,.45);
+opacity:0;
+animation: ax-hint 900ms ease 1250ms forwards;
+}
+@keyframes ax-hint{ to{ opacity:1; } }
+
+/* Reduced motion: no pulse, no sweep, quicker in/out */
+@media (prefers-reduced-motion: reduce){
+#ax-intro{ transition: opacity 300ms linear; }
+.ax-img{ animation: none; opacity:1; transform:none; }
+.ax-figure::before{ animation: none; }
+.ax-title::after{ animation: none; display:none; }
+#ax-intro::after{ animation:none; }
+.ax-title,.ax-sub{ animation:none; opacity:1; transform:none; }
+}
+</style>
+
+<script>
+(() => {
+// =========================
+// CONFIG
+// =========================
+// WARNING: Discord media URLs include signed `ex=...&hm=...` params that EXPIRE
+// (typically within ~24h of the original message). When this URL stops working,
+// re-host the image on Supabase / Imgur / your own CDN and replace IMG_URL.
+const IMG_URL = "https://media.discordapp.net/attachments/1460804654417055900/1461174133269463157/ChatGPT_Image_Jan_13_2026_08_54_34_PM.png?ex=696997f4&is=69684674&hm=2e8b5d7bddff9faef7661f26e698ac6ed76604f360b6bf55ae92b697e9691880&=&format=webp&quality=lossless&width=640&height=960";
+const MESSAGE = "THE ARXANGEL WELCOMES YOU";
+const SUBLINE = "<b>Signal acquired.</b> Step forward.";
+const AUTO_HIDE_AFTER_MS = 3600;
+const FADE_OUT_MS = 1100;
+const SHOW_ONCE_PER_SESSION = true;
+
+if (window.__AX_INTRO_MOUNTED__) return;
+window.__AX_INTRO_MOUNTED__ = true;
+
+try{
+if (SHOW_ONCE_PER_SESSION && sessionStorage.getItem("ax_intro_seen") === "1") return;
+}catch(e){}
+
+// Preload the hero image so it's ready by the time we fade in
+try{
+const pre = document.createElement("link");
+pre.rel = "preload"; pre.as = "image"; pre.href = IMG_URL;
+pre.fetchPriority = "high";
+document.head.appendChild(pre);
+}catch(e){}
+
+// Build DOM
+const overlay = document.createElement("div");
+overlay.id = "ax-intro";
+overlay.setAttribute("role","dialog");
+overlay.setAttribute("aria-label","Arxangel welcome screen");
+overlay.setAttribute("aria-modal","true");
+
+overlay.innerHTML = `
+<canvas id="axfx" aria-hidden="true"></canvas>
+<div class="ax-wrap">
+<div class="ax-card">
+<div class="ax-figure">
+<img class="ax-img" alt="ARXANGEL" src="${IMG_URL}" decoding="async" fetchpriority="high" draggable="false">
+</div>
+<div class="ax-title">${MESSAGE}</div>
+<div class="ax-sub">${SUBLINE}</div>
+<div class="ax-hint">Click / Tap to skip</div>
+</div>
+</div>
+`;
+
+// Prevent scroll while active
+const body = document.body;
+const prevOverflow = body.style.overflow;
+const prevOverscroll = body.style.overscrollBehavior;
+body.style.overflow = "hidden";
+body.style.overscrollBehavior = "none";
+
+document.body.appendChild(overlay);
+
+// ─────────────────────────────────────────────────────────────────────────
+// Particle FX (gold embers) — sprite-cached for speed
+// ─────────────────────────────────────────────────────────────────────────
+const canvas = overlay.querySelector("#axfx");
+const ctx = canvas.getContext("2d", { alpha:true, desynchronized:true });
+
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAVE = !!(navigator.connection && navigator.connection.saveData);
+const mqMobile = window.matchMedia("(max-width: 640px)");
+let isMobile = mqMobile.matches;
+mqMobile.addEventListener?.("change", e => isMobile = e.matches);
+
+let W=0,H=0, particles=[];
+let running = true;
+let lastT = performance.now();
+let rafId = 0;
+
+const palette = [
+[250,239,197], // ivory
+[229,189,109], // gold
+[188,130,61], // amber
+[148,80,25], // bronze
+];
+
+// ── Pre-render ember sprites once. Drawing a pre-blurred sprite is dramatically
+// cheaper than ctx.shadowBlur on every particle every frame.
+function makeEmberSprite(rgb, glow){
+const r = 14 * DPR; // sprite radius incl. glow
+const c = document.createElement("canvas");
+c.width = c.height = Math.ceil(r * 2);
+const g = c.getContext("2d");
+const cx = r, cy = r;
+const grd = g.createRadialGradient(cx, cy, 0, cx, cy, r);
+grd.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.95)`);
+grd.addColorStop(0.35, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.45)`);
+grd.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+g.fillStyle = grd;
+g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.fill();
+return c;
+}
+function makeStreakSprite(rgb){
+const w = 28*DPR, h = 6*DPR;
+const c = document.createElement("canvas");
+c.width = w; c.height = h;
+const g = c.getContext("2d");
+const grd = g.createLinearGradient(0,0,w,0);
+grd.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+grd.addColorStop(0.5, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.85)`);
+grd.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+g.fillStyle = grd; g.fillRect(0, h*0.35, w, h*0.30);
+return c;
+}
+const EMBER_SPRITES = palette.map(rgb => makeEmberSprite(rgb));
+const STREAK_SPRITES = palette.map(rgb => makeStreakSprite(rgb));
+
+function resize(){
+W = Math.floor(window.innerWidth * DPR);
+H = Math.floor(window.innerHeight * DPR);
+canvas.width = W;
+canvas.height = H;
+canvas.style.width = "100%";
+canvas.style.height = "100%";
+}
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function spawn(count, burst=false){
+for(let i=0;i<count;i++){
+const idx = (Math.random()*palette.length)|0;
+const x = burst ? (W*0.5 + rand(-W*0.08, W*0.08)) : rand(0,W);
+const y = burst ? (H*0.55 + rand(-H*0.10, H*0.10)) : rand(H*0.15, H);
+const size = burst ? rand(1.2, 3.4) : rand(0.8, 2.6);
+const vy = burst ? rand(-1.9,-0.6) : rand(-1.2,-0.25);
+const vx = burst ? rand(-0.55,0.55) : rand(-0.25,0.25);
+const life = burst ? rand(520, 1100) : rand(900, 2100);
+particles.push({
+x, y,
+vx: vx*DPR,
+vy: vy*DPR,
+size: size*DPR,
+life,
+age: 0,
+tw: rand(0.6, 1.0),
+spr: idx,
+streak: Math.random() < (burst ? 0.30 : 0.12),
+});
+}
+}
+
+function step(now){
+if(!running) return;
+const dt = Math.min(33, now - lastT);
+lastT = now;
+
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation = "lighter";
+
+// Adaptive target — tightened from v1 (130/70) → 80/40
+const target = SAVE ? 0 : (isMobile ? 40 : 80);
+if (particles.length < target) spawn(((target - particles.length) * 0.12) | 0);
+
+for(let i=particles.length-1;i>=0;i--){
+const p = particles[i];
+p.age += dt;
+if(p.age >= p.life){ particles.splice(i,1); continue; }
+
+p.x += p.vx * (dt/16);
+p.y += p.vy * (dt/16);
+p.vx *= 0.995;
+p.vy *= 0.998;
+p.vx += Math.sin((now*0.001)+(p.x*0.0008)) * 0.004 * DPR;
+
+const t = p.age / p.life;
+const a = (t < 0.2 ? t/0.2 : (t > 0.9 ? (1-t)/0.1 : 1)) * p.tw;
+
+if (p.streak){
+const s = STREAK_SPRITES[p.spr];
+ctx.globalAlpha = 0.55 * a;
+const ang = Math.atan2(p.vy, p.vx);
+ctx.save();
+ctx.translate(p.x, p.y);
+ctx.rotate(ang);
+const sw = s.width * (p.size/2.0);
+const sh = s.height * (p.size/2.0);
+ctx.drawImage(s, -sw/2, -sh/2, sw, sh);
+ctx.restore();
+} else {
+const s = EMBER_SPRITES[p.spr];
+ctx.globalAlpha = 0.42 * a;
+const sz = s.width * (p.size/2.0);
+ctx.drawImage(s, p.x - sz/2, p.y - sz/2, sz, sz);
+}
+}
+
+ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = "source-over";
+rafId = requestAnimationFrame(step);
+}
+
+function show(){
+overlay.classList.add("ax-show");
+spawn(50, true);
+spawn(30, true);
+if (!SAVE) rafId = requestAnimationFrame(step);
+
+const hideAfter = REDUCE ? 1200 : AUTO_HIDE_AFTER_MS;
+window.setTimeout(hide, hideAfter);
+}
+
+function hide(){
+if(!overlay || overlay.classList.contains("ax-hide")) return;
+overlay.classList.add("ax-hide");
+
+try{ if (SHOW_ONCE_PER_SESSION) sessionStorage.setItem("ax_intro_seen","1"); }catch(e){}
+
+window.setTimeout(() => {
+running = false;
+if (rafId) cancelAnimationFrame(rafId);
+window.removeEventListener("resize", resize);
+overlay.remove();
+
+body.style.overflow = prevOverflow;
+body.style.overscrollBehavior = prevOverscroll;
+
+window.__AX_INTRO_MOUNTED__ = false;
+}, FADE_OUT_MS);
+}
+
+// Click / key skip
+overlay.addEventListener("click", hide, { passive:true });
+window.addEventListener("keydown", function onKey(e){
+if (e.key === "Escape" || e.key === "Enter" || e.key === " "){
+window.removeEventListener("keydown", onKey);
+hide();
+}
+});
+
+// Pause RAF when tab hidden
+document.addEventListener("visibilitychange", () => {
+if (document.hidden && rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+else if (!document.hidden && running && !rafId){ lastT = performance.now(); rafId = requestAnimationFrame(step); }
+}, { passive:true });
+
+// If image fails (e.g. expired Discord URL), fail closed — don't trap the user
+const img = overlay.querySelector(".ax-img");
+img.addEventListener("error", () => hide(), { once:true });
+
+resize();
+window.addEventListener("resize", resize, { passive:true });
+show();
+
+window.ArxangelIntro = { show, hide };
+})();
+</script>
+
+
+<div style="
+width: 100%;
+max-width: 820px;
+margin: 0 auto;
+border-radius: 22px;
+overflow: hidden;
+box-shadow:
+0 12px 50px rgba(0, 0, 0, 0.45),
+0 0 60px rgba(212, 175, 55, 0.12);
+border: 1px solid rgba(212, 175, 55, 0.18);
+background: transparent;
+">
+<iframe
+src="https://marvelous-biscotti-6276f1.netlify.app/?transparent=true"
+style="
+display: block;
+width: 100%;
+height: 820px;
+border: 0;
+background: transparent;
+"
+allow="clipboard-write"
+allowtransparency="true"
+loading="lazy"
+title="Arxangel Bets">
+</iframe>
+</div>
+
+
+<!-- ===================== ARXANGEL SHARE CONSOLE (COPY-PASTE EMBED) v2 ===================== -->
+<div id="ax-share" class="axsh" data-axshare="1">
+<button class="axsh-btn" id="axsh-btn" type="button" aria-controls="axsh-panel" aria-expanded="false">
+SHARE TRANSMISSION
+</button>
+
+<div class="axsh-panel" id="axsh-panel" role="menu" aria-hidden="true">
+<button class="axsh-item" id="axsh-copy" type="button" role="menuitem">COPY LINK</button>
+<a class="axsh-item" id="axsh-x" role="menuitem" target="_blank" rel="noopener noreferrer">SHARE TO X</a>
+<a class="axsh-item" id="axsh-fb" role="menuitem" target="_blank" rel="noopener noreferrer">SHARE TO FACEBOOK</a>
+<a class="axsh-item" id="axsh-li" role="menuitem" target="_blank" rel="noopener noreferrer">SHARE TO LINKEDIN</a>
+<a class="axsh-item" id="axsh-rd" role="menuitem" target="_blank" rel="noopener noreferrer">SHARE TO REDDIT</a>
+</div>
+
+<div class="axsh-toast" id="axsh-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+</div>
+
+<style>
+/* ===== ARXANGEL SHARE (scoped) ===== */
+#ax-share, #ax-share *{box-sizing:border-box}
+#ax-share{max-width:880px;margin:0 auto}
+
+#ax-share .axsh-btn{
+appearance:none; cursor:pointer;
+width:100%;
+padding:12px 14px;
+border-radius:14px;
+border:1px solid rgba(229,189,109,.22);
+background:linear-gradient(180deg,rgba(229,189,109,.18),rgba(0,0,0,.28));
+color:rgba(250,239,197,.94);
+font:900 12px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+letter-spacing:.7px; text-transform:uppercase;
+box-shadow:0 14px 46px rgba(0,0,0,.45), 0 0 0 1px rgba(188,130,61,.10) inset;
+transition:transform .12s, background .12s, border-color .12s, box-shadow .12s;
+}
+#ax-share .axsh-btn:hover{
+transform:translateY(-1px);
+background:linear-gradient(180deg,rgba(229,189,109,.26),rgba(0,0,0,.30));
+border-color:rgba(229,189,109,.36);
+}
+#ax-share .axsh-btn:active{transform:translateY(0) scale(.99)}
+#ax-share .axsh-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(229,189,109,.30), 0 14px 46px rgba(0,0,0,.45)}
+
+#ax-share .axsh-panel{
+margin-top:10px;
+border-radius:16px;
+border:1px solid rgba(229,189,109,.16);
+background:rgba(0,0,0,.34);
+backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+overflow:hidden;
+
+max-height:0;
+opacity:0;
+transform:translateY(-4px);
+pointer-events:none;
+transition:max-height .22s ease, opacity .18s ease, transform .18s ease;
+}
+#ax-share .axsh-panel.open{
+max-height:380px;
+opacity:1;
+transform:translateY(0);
+pointer-events:auto;
+}
+
+#ax-share .axsh-item{
+display:block; width:100%;
+padding:12px 14px;
+text-decoration:none;
+background:transparent;
+border:0;
+border-top:1px solid rgba(229,189,109,.10);
+color:rgba(250,239,197,.92);
+font:900 12px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+letter-spacing:.65px; text-transform:uppercase;
+cursor:pointer;
+transition:background .12s, color .12s;
+}
+#ax-share .axsh-item:first-child{border-top:0}
+#ax-share .axsh-item:hover{background:rgba(229,189,109,.10); color:rgba(255,234,166,1)}
+#ax-share .axsh-item:focus-visible{outline:none;box-shadow:inset 0 0 0 3px rgba(229,189,109,.28)}
+
+#ax-share .axsh-toast{
+display:block;
+margin:10px auto 0;
+width:fit-content; max-width:92%;
+padding:10px 12px;
+border-radius:999px;
+border:1px solid rgba(229,189,109,.22);
+background:rgba(0,0,0,.55);
+box-shadow:0 12px 34px rgba(0,0,0,.55);
+color:rgba(250,239,197,.94);
+font:900 12px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+letter-spacing:.7px; text-transform:uppercase; text-align:center;
+
+opacity:0; transform:translateY(-4px);
+pointer-events:none; visibility:hidden;
+transition:opacity .18s, transform .18s, visibility 0s linear .18s;
+}
+#ax-share .axsh-toast.show{
+opacity:1; transform:translateY(0);
+visibility:visible;
+transition:opacity .18s, transform .18s, visibility 0s;
+}
+
+@media (prefers-reduced-motion:reduce){
+#ax-share .axsh-btn, #ax-share .axsh-panel, #ax-share .axsh-item, #ax-share .axsh-toast{transition:none!important}
+#ax-share .axsh-btn:hover{transform:none!important}
+#ax-share .axsh-btn:active{transform:none!important}
+}
+</style>
+
+<script>
+(()=> {
+const root=document.querySelector('#ax-share[data-axshare="1"]');
+if(!root || root.dataset.inited==="1") return;
+root.dataset.inited="1";
+const $=q=>root.querySelector(q);
+
+const btn=$("#axsh-btn"), panel=$("#axsh-panel"), toast=$("#axsh-toast");
+const copy=$("#axsh-copy"), x=$("#axsh-x"), fb=$("#axsh-fb"), li=$("#axsh-li"), rd=$("#axsh-rd");
+
+const TITLE=(document.title||"ARXΛNGΞL").trim();
+const TEXT="ARXΛNGΞL — THE CONSEQUENCE.";
+const URL=(location.href.split('#')[0]||"https://arxangel.gg");
+
+const enc=encodeURIComponent;
+x.href ="https://twitter.com/intent/tweet?text="+enc(TEXT)+"&url="+enc(URL);
+fb.href="https://www.facebook.com/sharer/sharer.php?u="+enc(URL);
+li.href="https://www.linkedin.com/sharing/share-offsite/?url="+enc(URL);
+rd.href="https://www.reddit.com/submit?url="+enc(URL)+"&title="+enc(TITLE);
+
+let tt=0;
+const show=(m)=>{toast.textContent=m;toast.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove("show"),2400);};
+const open=(v)=>{panel.classList.toggle("open",v);panel.setAttribute("aria-hidden",v?"false":"true");btn.setAttribute("aria-expanded",v?"true":"false");};
+const isOpen=()=>panel.classList.contains("open");
+
+btn.addEventListener("click", async ()=>{
+if(navigator.share && window.isSecureContext){
+try{ await navigator.share({title:TITLE, text:TEXT, url:URL}); show("TRANSMISSION SHARED"); }
+catch(_){ open(!isOpen()); }
+} else {
+open(!isOpen());
+}
+});
+
+async function copyLink(){
+try{
+if(navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(URL);
+else { const ta=document.createElement("textarea"); ta.value=URL; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+show("LINK COPIED");
+open(false);
+} catch(_){
+show("COPY FAILED");
+}
+}
+copy.addEventListener("click", copyLink);
+
+document.addEventListener("click",(e)=>{ if(!root.contains(e.target)) open(false); }, true);
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") open(false); });
+
+})();
+</script>
+<!-- ===================== /ARXANGEL SHARE CONSOLE ===================== -->
+
+
+<!-- ARXANGEL — Crosshair Cursor v2 (iframe-aware, no MutationObserver) -->
+<div id="ax-xhair" class="ax-xhair" aria-hidden="true">
+<svg viewBox="0 0 100 100" class="ax-xhair-svg" aria-hidden="true">
+<circle cx="50" cy="50" r="22" class="ring outer"/>
+<circle cx="50" cy="50" r="8" class="ring inner"/>
+<line x1="50" y1="5" x2="50" y2="18" class="tick"/>
+<line x1="50" y1="82" x2="50" y2="95" class="tick"/>
+<line x1="5" y1="50" x2="18" y2="50" class="tick"/>
+<line x1="82" y1="50" x2="95" y2="50" class="tick"/>
+<circle cx="50" cy="50" r="1.6" class="dot"/>
+</svg>
+<span class="ax-xhair-flash"></span>
+</div>
+
+<style>
+:root{
+--ax-xhair-size:28px; --ax-xhair-gold:#F5C400; --ax-xhair-gold2:#FFEAA6;
+--ax-xhair-ink:#EDE6D0; --ax-xhair-glow:rgba(245,196,0,.28);
+}
+
+@media (pointer:fine){
+html.ax-xhair-on, html.ax-xhair-on *{ cursor:none !important; }
+iframe[src*="netlify.app"], iframe[data-axg-game]{ cursor:none !important; }
+}
+
+.ax-xhair{
+position:fixed; left:0; top:0;
+width:var(--ax-xhair-size); height:var(--ax-xhair-size);
+margin-left:calc(var(--ax-xhair-size)*-0.5);
+margin-top:calc(var(--ax-xhair-size)*-0.5);
+z-index:2147483646; pointer-events:none;
+opacity:0;
+transform:translate3d(-9999px,-9999px,0);
+will-change:transform,opacity;
+filter:drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 16px var(--ax-xhair-glow));
+transition:opacity .15s ease;
+contain:layout paint style;
+}
+.ax-xhair-svg{display:block; width:100%; height:100%}
+.ring{fill:none; stroke-linecap:round}
+.ring.outer{stroke:var(--ax-xhair-gold2); stroke-width:2.2; filter:drop-shadow(0 0 6px var(--ax-xhair-glow)); animation:ax-breathe 2.6s ease-in-out infinite}
+.ring.inner{stroke:var(--ax-xhair-gold); stroke-width:1.6}
+.tick{stroke:var(--ax-xhair-ink); stroke-width:1.2; opacity:.9}
+.dot{fill:var(--ax-xhair-gold); filter:drop-shadow(0 0 6px var(--ax-xhair-glow))}
+.ax-xhair-flash{position:absolute; inset:0; border-radius:50%; border:2px solid var(--ax-xhair-gold); opacity:0; transform:scale(.7); will-change:transform,opacity}
+.ax-xhair.fire .ax-xhair-flash{ animation:ax-flash .28s ease-out }
+.ax-xhair.aim .ring.inner{ stroke:var(--ax-xhair-gold2) }
+.ax-xhair.aim .dot{ fill:var(--ax-xhair-gold2) }
+@keyframes ax-breathe{ 50%{ stroke-width:2.6 } }
+@keyframes ax-flash{ 0%{opacity:.85; transform:scale(.7)} 80%{opacity:.12; transform:scale(1.35)} 100%{opacity:0; transform:scale(1.45)} }
+@media (prefers-reduced-motion:reduce){ .ring.outer{ animation:none } }
+</style>
+
+<script>
+(()=>{
+// Only run on precise pointers (mouse / trackpad)
+const fine = matchMedia('(pointer:fine)');
+if (!fine.matches) return;
+
+const root = document.documentElement;
+const ghost = document.getElementById('ax-xhair');
+if (!ghost) return;
+const flash = ghost.querySelector('.ax-xhair-flash');
+
+root.classList.add('ax-xhair-on');
+
+let x=-9999, y=-9999, tx=x, ty=y, raf=0, paused=false;
+
+function tick(){
+raf = 0;
+// exponential smoothing toward target
+tx += (x - tx) * 0.22;
+ty += (y - ty) * 0.22;
+ghost.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+// Continue animating only while the cursor hasn't snapped to target
+if (Math.abs(x - tx) > 0.1 || Math.abs(y - ty) > 0.1){
+if (!paused) raf = requestAnimationFrame(tick);
+}
+}
+function moveTo(px,py){
+x = px; y = py;
+if (!raf && !paused) raf = requestAnimationFrame(tick);
+if (ghost.style.opacity !== '1') ghost.style.opacity = '1';
+}
+function fire(){
+ghost.classList.remove('fire');
+/* force reflow so the flash animation can replay */
+void flash.offsetWidth;
+ghost.classList.add('fire');
+}
+function isEditable(t){
+return t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+}
+function aim(t){
+const hot = t && t.closest && t.closest('a,button,[role="button"],[data-aim]');
+ghost.classList.toggle('aim', !!hot);
+}
+
+addEventListener('mousemove', (e)=>{
+moveTo(e.clientX, e.clientY);
+aim(e.target);
+ghost.style.display = isEditable(e.target) ? 'none' : 'block';
+}, { passive:true });
+
+addEventListener('mousedown', fire, { passive:true });
+addEventListener('mouseleave', ()=>{ ghost.style.opacity = '0'; }, { passive:true });
+addEventListener('mouseenter', ()=>{ /* opacity restored on next move */ }, { passive:true });
+
+// Pause RAF when tab is hidden
+document.addEventListener('visibilitychange', ()=>{
+paused = document.hidden;
+if (paused && raf){ cancelAnimationFrame(raf); raf = 0; }
+}, { passive:true });
+
+// If the user later switches to a coarse-pointer device, retire ourselves
+fine.addEventListener?.('change', (e)=>{
+if (!e.matches){
+root.classList.remove('ax-xhair-on');
+ghost.style.opacity = '0';
+if (raf){ cancelAnimationFrame(raf); raf = 0; }
+}
+});
+
+/* ---------- IFRAME BRIDGE (receive mouse from Netlify app) ---------- */
+const frames = Array.from(document.querySelectorAll('iframe[src*="netlify.app"], iframe[data-axg-game]'));
+if (frames.length){
+window.addEventListener('message', (ev)=>{
+const d = ev.data;
+if (!d || d.type !== 'ax-xhair') return;
+const f = frames.find(fr => fr.contentWindow === ev.source);
+if (!f) return;
+const r = f.getBoundingClientRect();
+moveTo(r.left + d.x, r.top + d.y);
+if (d.aim != null) ghost.classList.toggle('aim', !!d.aim);
+if (d.fire) fire();
+}, { passive:true });
+}
+})();
+</script>
+
+
+<!-- ARXANGEL — Stratagem Field v4.2 (mobile-aware, true fade, brisk drift) -->
+<style>
+#ax-field{position:fixed;inset:0;z-index:4;pointer-events:none;contain:strict}
+#ax-field .ic{
+position:absolute; opacity:0; transform:translate3d(0,0,0) scale(var(--scale,1));
+will-change:opacity,transform; transition:opacity var(--fade,500ms) ease;
+filter:drop-shadow(0 4px 12px rgba(0,0,0,.35));
+}
+@keyframes axDrift{
+from{transform:translate3d(0,0,0) scale(var(--scale,1)) rotate(0deg)}
+to {transform:translate3d(var(--dx,0px),var(--dy,0px),0) scale(var(--scale,1)) rotate(var(--rot,0deg))}
+}
+@media (prefers-reduced-motion:reduce){ #ax-field .ic{ transition:none; animation:none } }
+</style>
+
+<!--
+Config notes (kept OUT of the tag — comments inside an element's attribute list are invalid HTML):
+data-count desktop concurrent on-screen (min,max)
+data-life seconds visible (min,max)
+data-fade ms fade-in/out
+data-spawn ms between spawns (min,max)
+data-size px base width (min,max)
+data-scale multiplicative random scale (min,max)
+data-drift px travel over life (min,max)
+data-opacity opacity range (min,max)
+data-mobile-count-scale fraction of desktop concurrency on mobile
+data-mobile-spawn-scale multiplier for spawn cadence on mobile
+Optional explicit overrides: data-count-mobile, data-spawn-mobile
+-->
+<div id="ax-field"
+data-manifest="https://ydzzmvhexbzayryrpvbk.supabase.co/storage/v1/object/public/helldivers/manifest.json"
+data-count="22,32"
+data-life="3,5"
+data-fade="720"
+data-spawn="220,460"
+data-size="56,112"
+data-scale="0.9,1.3"
+data-drift="90,180"
+data-opacity="0.07,0.19"
+data-mobile-count-scale="0.35"
+data-mobile-spawn-scale="1.15"
+aria-hidden="true"></div>
+
+<script>
+(()=>{"use strict";
+const wrap = document.getElementById("ax-field"); if(!wrap) return;
+if (wrap.dataset.inited === "1") return; wrap.dataset.inited = "1";
+
+/* ---- Read config (with safe defaults) ---------------------------------- */
+const MURL = (wrap.dataset.manifest || "").trim();
+const [C0,C1] = (wrap.dataset.count || "14,22").split(",").map(v=>+v||0);
+const [L0,L1] = (wrap.dataset.life || "4,6.5").split(",").map(v=>+v||0);
+const FADE = +(wrap.dataset.fade || 480);
+const [S0,S1] = (wrap.dataset.spawn || "240,520").split(",").map(v=>+v||0);
+const [W0,W1] = (wrap.dataset.size || "56,112").split(",").map(v=>+v||0);
+const [SC0,SC1] = (wrap.dataset.scale || "0.9,1.35").split(",").map(v=>+v||0);
+const [D0,D1] = (wrap.dataset.drift || "90,180").split(",").map(v=>+v||0);
+const [O0,O1] = (wrap.dataset.opacity || "0.16,0.30").split(",").map(v=>+v||0);
+
+const CM = (wrap.dataset.countMobile || "").trim();
+const SM = (wrap.dataset.spawnMobile || "").trim();
+const [cM0,cM1] = CM ? CM.split(",").map(v=>+v||0) : [0,0];
+const [sM0,sM1] = SM ? SM.split(",").map(v=>+v||0) : [0,0];
+const COUNT_SCALE = +(wrap.dataset.mobileCountScale || 0.5);
+const SPAWN_SCALE = +(wrap.dataset.mobileSpawnScale || 1.0);
+
+/* ---- Helpers ----------------------------------------------------------- */
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAVE = !!(navigator.connection && navigator.connection.saveData);
+const isMobile = matchMedia("(hover:none), (pointer:coarse)").matches || Math.min(innerWidth,innerHeight) < 768;
+const rnd = (a,b)=>a + Math.random()*(b-a);
+const enc = s=>encodeURIComponent(s).replace(/%2F/g,'/');
+const base = MURL.replace(/[^\/?#]+(\?.*)?$/,'');
+const url = name => base + enc(name);
+
+/* Preconnect to the asset origin so the first sprites paint sooner */
+try{
+const o = new URL(MURL).origin;
+if (!document.querySelector(`link[rel="preconnect"][href="${o}"]`)){
+const l = document.createElement("link");
+l.rel = "preconnect"; l.href = o; l.crossOrigin = "anonymous";
+document.head.appendChild(l);
+}
+}catch(e){}
+
+async function listFromManifest(){
+const r = await fetch(MURL, { cache:"force-cache" });
+const j = await r.json();
+if(!Array.isArray(j) || !j.length) throw new Error("Empty manifest");
+return j;
+}
+
+function spawn(src){
+const img = new Image();
+img.decoding = "async";
+img.loading = "lazy";
+img.fetchPriority = "low";
+img.className = "ic";
+
+const w = innerWidth, h = innerHeight;
+const baseW = rnd(W0, W1);
+const scale = rnd(SC0, SC1);
+const px = baseW * scale;
+img.style.width = px + "px";
+const x = rnd(px/2, w - px/2), y = rnd(px/2, h - px/2);
+img.style.left = (x - px/2) + "px";
+img.style.top = (y - px/2) + "px";
+img.style.setProperty('--scale', scale.toFixed(3));
+
+const lifeS = REDUCE ? rnd(3.5, 4.5) : rnd(L0, L1);
+const travel = rnd(D0, D1);
+const ang = Math.random() * Math.PI * 2;
+const dx = Math.cos(ang)*travel, dy = Math.sin(ang)*travel;
+const rot = rnd(-6, 6);
+img.style.setProperty('--dx', dx.toFixed(1)+'px');
+img.style.setProperty('--dy', dy.toFixed(1)+'px');
+img.style.setProperty('--rot', rot.toFixed(1)+'deg');
+img.style.setProperty('--fade', FADE+'ms');
+
+img.onload = () => {
+wrap.appendChild(img);
+img.getBoundingClientRect();
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+img.style.opacity = REDUCE ? ".18" : String(rnd(O0, O1));
+img.style.animation = `axDrift ${lifeS}s linear forwards`;
+}));
+const fadeStart = lifeS * (REDUCE ? 0.55 : rnd(0.55, 0.7));
+const killAt = fadeStart*1000 + FADE + 120;
+setTimeout(()=>{ img.style.opacity = "0"; }, fadeStart*1000);
+setTimeout(()=>{ img.remove(); }, killAt);
+};
+img.onerror = ()=>{ img.remove(); };
+img.src = src;
+}
+
+(async()=>{
+const names = await listFromManifest();
+const urls = names.map(url);
+
+let minC = C0, maxC = C1;
+let sMin = S0, sMax = S1;
+
+if (isMobile){
+if (cM0 && cM1){ minC = Math.max(1, cM0); maxC = Math.max(minC, cM1); }
+else { minC = Math.max(1, Math.floor(C0 * COUNT_SCALE)); maxC = Math.max(minC, Math.floor(C1 * COUNT_SCALE)); }
+if (sM0 && sM1){ sMin = Math.max(30, sM0); sMax = Math.max(sMin, sM1); }
+else { sMin = Math.max(30, Math.floor(S0 * SPAWN_SCALE)); sMax = Math.max(sMin, Math.floor(S1 * SPAWN_SCALE)); }
+}
+
+/* Save-Data: cut concurrency hard, keep cadence calm */
+if (SAVE){
+minC = Math.max(1, Math.floor(minC * 0.4));
+maxC = Math.max(minC, Math.floor(maxC * 0.4));
+sMin = Math.max(60, Math.floor(sMin * 1.5));
+sMax = Math.max(sMin, Math.floor(sMax * 1.5));
+}
+
+const target = Math.round(rnd(minC, maxC));
+let stopped = false;
+
+function tick(){
+if (stopped) return;
+const cur = wrap.childElementCount;
+if (cur < target && !document.hidden){
+const u = urls[(Math.random()*urls.length)|0];
+spawn(u);
+}
+setTimeout(tick, rnd(sMin, sMax));
+}
+tick();
+
+document.addEventListener("visibilitychange", ()=>{
+if (document.hidden){
+// Drop the live elements; we'll re-grow naturally when visible
+while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+}
+}, {passive:true});
+})().catch(console.warn);
+})();
+</script>
+
+
+<!-- ARXANGEL — Bottom Single-Line Quote Rotator (JSON-powered, resilient) v2 -->
+<div
+id="arx-quote-line"
+data-delay="5000"
+data-fade="720"
+data-src="https://glkkdqmeumaxfjlctxuo.supabase.co/storage/v1/object/public/misc/quotes.json">
+</div>
+
+<style>
+#arx-quote-line{position:fixed;left:0;right:0;bottom:22px;z-index:8;pointer-events:none}
+.axq-bar{width:94vw;margin:0 auto;text-align:center}
+.axq-line{
+--fade:650ms;
+position:absolute;left:50%;transform:translateX(-50%);
+display:inline-block;white-space:nowrap;
+font:700 22px/1 Inter,system-ui,sans-serif; letter-spacing:.02em;
+background:linear-gradient(180deg,#FFEAA6 0%,#F5C400 85%);
+-webkit-background-clip:text;background-clip:text;color:transparent;
+text-shadow:0 1px 0 rgba(0,0,0,.35), 0 0 12px rgba(245,196,0,.18);
+opacity:0; transition:opacity var(--fade) ease;
+will-change:opacity;
+}
+.axq-line.active{opacity:.98}
+.axq-wrap{position:relative;display:inline-block;height:1.4em}
+@media (prefers-reduced-motion:reduce){ .axq-line{transition:none} }
+</style>
+
+<script>
+(()=>{"use strict";
+const host=document.getElementById("arx-quote-line"); if(!host) return;
+if (host.dataset.inited === "1") return; host.dataset.inited = "1";
+
+const delay=Math.max(1500,+(host.dataset.delay||9000));
+const fade =Math.max(0, +(host.dataset.fade || 650));
+const SRC =(host.dataset.src||"").trim();
+const CACHE_KEY = 'axq-cache::'+SRC;
+const ETAG_KEY = 'axq-etag::'+SRC;
+
+const FALLBACK=[
+"Precision under fire. Sacred vibes.",
+"Order from chaos. Light from fire. Victory from orbit.",
+"We're not loud — we're final.",
+"Aim true. Strike once.",
+"Clarity before cadence."
+];
+
+host.innerHTML=`<div class="axq-bar"><div class="axq-wrap">
+<span class="axq-line active" id="qA"></span>
+<span class="axq-line" id="qB"></span>
+</div></div>`;
+
+const A=document.getElementById("qA"), B=document.getElementById("qB");
+const REDUCE=matchMedia("(prefers-reduced-motion: reduce)").matches;
+A.style.setProperty("--fade", (REDUCE?0:fade)+"ms");
+B.style.setProperty("--fade", (REDUCE?0:fade)+"ms");
+
+let QUOTES=[], last=-1, front=A, back=B, timer=null;
+
+function pick(){
+if(!QUOTES.length) return "—";
+let i=(Math.random()*QUOTES.length|0);
+if(i===last) i=(i+1)%QUOTES.length;
+last=i; return QUOTES[i];
+}
+
+// O(1) fit — measure once, shrink by exact ratio, clamp.
+const MIN_PX = 12, MAX_PX = 32;
+function fit(el){
+const desired = Math.min(MAX_PX, Math.max(MIN_PX, window.innerWidth*0.018));
+el.style.fontSize = desired+"px";
+const maxW = window.innerWidth * 0.94;
+const w = el.scrollWidth;
+if (w > maxW){
+// Single-step proportional shrink (1 reflow). 0.985 leaves a safety margin.
+const scaled = Math.max(MIN_PX, Math.floor(desired * (maxW/w) * 0.985));
+el.style.fontSize = scaled+"px";
+}
+}
+function setText(el, txt){
+el.textContent = "“"+txt+"”";
+// Force a measurable layout by ensuring it's rendered (active or not, scrollWidth is valid)
+fit(el);
+}
+
+function swap(){
+setText(back, pick());
+front.classList.remove("active");
+back.classList.add("active");
+[front,back]=[back,front];
+}
+function start(){ if(timer) clearInterval(timer); timer=setInterval(swap, delay); }
+
+async function fetchJSONrobust(url){
+const et = (()=>{ try { return localStorage.getItem(ETAG_KEY); } catch { return null; } })();
+const res = await fetch(url, {
+method:'GET',
+cache:'no-store',
+mode:'cors',
+credentials:'omit',
+referrerPolicy:'no-referrer',
+headers: et ? {'If-None-Match': et} : {}
+});
+if (res.status === 304){
+try {
+const cached = localStorage.getItem(CACHE_KEY);
+if (cached) return JSON.parse(cached);
+localStorage.removeItem(ETAG_KEY);
+} catch {}
+return fetchJSONrobust(url);
+}
+let data;
+try {
+data = await res.clone().json();
+} catch {
+const txt = await res.text();
+const clean = txt.replace(/^/, '').trim();
+data = JSON.parse(clean);
+}
+try{
+const etag = res.headers.get('etag');
+if (etag) localStorage.setItem(ETAG_KEY, etag);
+localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+}catch{}
+return data;
+}
+
+async function loadQuotes(){
+try{
+if(!SRC) throw new Error("No data-src provided");
+const data = await fetchJSONrobust(SRC);
+let list = Array.isArray(data) ? data : (Array.isArray(data.quotes) ? data.quotes : []);
+list = list.map(q => String(q)).filter(s => s && s.trim().length);
+if (!list.length) throw new Error("Empty list");
+QUOTES = list;
+}catch(e){
+try{
+const cached = localStorage.getItem(CACHE_KEY);
+if (cached){
+const data = JSON.parse(cached);
+let list = Array.isArray(data) ? data : (Array.isArray(data.quotes)?data.quotes:[]);
+list = list.map(q => String(q)).filter(Boolean);
+if (list.length){ QUOTES=list; }
+}
+}catch{}
+if (!QUOTES.length) QUOTES = FALLBACK;
+}
+}
+
+(async ()=>{
+await loadQuotes();
+setText(A, pick());
+start();
+
+document.addEventListener("visibilitychange", ()=>{
+if(document.hidden){ if(timer){ clearInterval(timer); timer=null; } }
+else if (!timer){ start(); }
+}, {passive:true});
+
+// Debounced refit so resize doesn't thrash
+let rt=null;
+addEventListener("resize", ()=>{
+clearTimeout(rt);
+rt = setTimeout(()=>{ fit(front); fit(back); }, 120);
+}, {passive:true});
+
+setInterval(loadQuotes, 20*60*1000);
+})();
+})();
+</script>
+
+
+<!-- ARXANGEL — Ember + Comet VFX (full-screen, stackable) v2 -->
+<style>
+#axEmbers{position:fixed;inset:0;width:100vw;height:100vh;z-index:4;pointer-events:none}
+#axEmbers canvas{position:absolute;inset:0;display:block;filter:contrast(108%) saturate(108%)}
+@media (prefers-reduced-motion:reduce){ #axEmbers canvas{filter:none} }
+</style>
+<div id="axEmbers" aria-hidden="true"><canvas id="axEmbersCanvas"></canvas></div>
+
+<script>
+(()=>{"use strict";
+// Co-op density: when embed9 + embed10 both run, each shrinks itself
+window.__AX_FX_LAYERS__ = (window.__AX_FX_LAYERS__|0) + 1;
+
+// —— Tunables (brand-safe) ——
+const GOLD="#F5C400", GOLD2="#FFEAA6", CYAN="#3AC0FF";
+const MAX_DPR=2, OPACITY=0.10, SPEED=0.16;
+const STREAKS=1, SCALE=1.0, WIND_HZ=0.05;
+
+const wrap=document.getElementById("axEmbers");
+const C=document.getElementById("axEmbersCanvas");
+if(!wrap||!C) return;
+const ctx=C.getContext("2d",{alpha:true,desynchronized:true});
+
+const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAVE=!!(navigator.connection&&navigator.connection.saveData);
+
+let DPR=Math.min(MAX_DPR, devicePixelRatio||1), W=1, H=1, area=1;
+function fit(){
+DPR=Math.min(MAX_DPR, devicePixelRatio||1);
+const r=wrap.getBoundingClientRect();
+W=Math.max(1,Math.floor(r.width*DPR));
+H=Math.max(1,Math.floor(r.height*DPR));
+C.width=W; C.height=H; C.style.width=r.width+"px"; C.style.height=r.height+"px";
+area=(W*H)/(DPR*DPR); seed();
+}
+addEventListener("resize",fit,{passive:true});
+
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const hex2rgba=(h,a=1)=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return`rgba(${r},${g},${b},${a})`};
+
+function makeDisc(R,c1,c2,a1=.45,a2=.12){
+const S=document.createElement("canvas"); S.width=S.height=Math.max(2,Math.round(R*2));
+const g=S.getContext("2d"); const grd=g.createRadialGradient(R,R,0,R,R,R);
+grd.addColorStop(0.00, hex2rgba(c1,a1));
+grd.addColorStop(0.60, hex2rgba(c2,a2));
+grd.addColorStop(1.00, hex2rgba(c2,0));
+g.fillStyle=grd; g.beginPath(); g.arc(R,R,R,0,6.283); g.fill(); return S;
+}
+function makeStreak(Wi,Hi){
+const S=document.createElement("canvas"); S.width=Wi; S.height=Hi;
+const g=S.getContext("2d"); const grd=g.createLinearGradient(0,0,Wi,0);
+grd.addColorStop(0, hex2rgba("#ffffff",0)); grd.addColorStop(.2, hex2rgba("#ffffff",.28));
+grd.addColorStop(.6, hex2rgba(CYAN,.22)); grd.addColorStop(1, hex2rgba("#ffffff",0));
+g.fillStyle=grd; g.fillRect(0,Hi/2-1,Wi,2);
+return S;
+}
+
+const E_SMALL=makeDisc(9*SCALE, GOLD, GOLD2, .38,.10);
+const E_MED =makeDisc(16*SCALE, GOLD, GOLD2, .42,.14);
+const E_BIG =makeDisc(24*SCALE, GOLD, GOLD2, .45,.16);
+const ST =makeStreak(140,18);
+
+// —— Particles ——
+let EMBERS=[], COMETS=[];
+function mkEmber(){
+const d=Math.random();
+const pick=Math.random();
+const spr=pick>.82?E_BIG:(pick>.45?E_MED:E_SMALL);
+const sp=rnd(.04,SPEED)*(0.5+d*1.0);
+const ang=rnd(-Math.PI/18, Math.PI/18);
+return {
+x:Math.random()*W, y:Math.random()*H,
+vx:rnd(-sp*0.4, sp*0.4), vy:rnd(-sp, -sp*0.2),
+d, s:spr, a:rnd(.6,1), r:ang, rv:rnd(-0.08,0.08)
+};
+}
+function mkComet(){
+const speed=rnd(220, 360);
+const ang=-Math.PI/6;
+const start=Math.random()<.5 ? {x:W+50, y:rnd(H*0.2,H*0.9)} : {x:rnd(W*0.2,W*0.9), y:H+50};
+return { x:start.x, y:start.y, vx:-Math.cos(ang)*speed, vy:-Math.sin(ang)*speed,
+life:rnd(0.7,1.2), t:0, rot:ang, alpha:rnd(.18,.28) };
+}
+
+function densityFactor(){
+// Two layers running together → each cuts its own count by ~40%
+const layers = Math.max(1, window.__AX_FX_LAYERS__|0);
+return layers >= 2 ? 0.6 : 1.0;
+}
+
+function seed(){
+const mobile=Math.min(innerWidth,innerHeight)<768;
+const baseDensity=(mobile?.85:1) * densityFactor();
+// Tightened: cap 220 → 160, floor 70 → 55
+const N=Math.round(baseDensity*Math.min(160, 55+area/130000));
+while(EMBERS.length<N) EMBERS.push(mkEmber()); EMBERS.length=N;
+}
+
+// Pointer parallax (gentle)
+let mx=.5,my=.5;
+addEventListener("pointermove",e=>{
+mx=Math.max(0,Math.min(1,e.clientX/innerWidth));
+my=Math.max(0,Math.min(1,e.clientY/innerHeight));
+},{passive:true});
+
+// —— Loop ——
+let last=performance.now(), paused=false, fps=60, cometTO=null, rafId=0;
+document.addEventListener("visibilitychange",()=>{
+paused=document.hidden;
+if (paused && rafId){ cancelAnimationFrame(rafId); rafId=0; }
+else if (!paused){ last=performance.now(); raf(); }
+},{passive:true});
+
+function scheduleComet(){
+if(!STREAKS) return;
+clearTimeout(cometTO);
+cometTO=setTimeout(()=>{ if(!paused) COMETS.push(mkComet()); scheduleComet(); }, rnd(3200, 6800));
+}
+
+function raf(){ if(paused) return; rafId = requestAnimationFrame(tick); }
+function tick(now){
+const dt=Math.min(100, now-last); last=now;
+fps=0.9*fps+0.1*(1000/dt);
+const sec=dt/1000;
+
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation="lighter";
+ctx.globalAlpha=OPACITY;
+
+const windX=Math.sin(now*0.001*WIND_HZ)*0.10;
+const parX=(mx-0.5)*0.12*DPR, parY=(my-0.5)*0.06*DPR;
+
+const skip=(fps<28)?2:1;
+
+// Embers
+for(let i=0;i<EMBERS.length;i+=skip){
+const p=EMBERS[i];
+p.vx += (windX*0.02 - p.vx)*0.006;
+p.x += (p.vx + parX*(0.2+p.d*0.6)) * DPR;
+p.y += (p.vy + parY*(0.1+p.d*0.4)) * DPR;
+p.r += p.rv*sec;
+
+if(p.x<-40) p.x=W+30; if(p.x>W+40) p.x=-30;
+if(p.y<-40) p.y=H+30; if(p.y>H+40) p.y=-30;
+
+const s=p.s, w=s.width, h=s.height;
+ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+ctx.globalAlpha=OPACITY * p.a * (0.6+p.d*0.7);
+ctx.drawImage(s, -w/2, -h/2); ctx.restore();
+}
+
+// Comets
+for(let i=COMETS.length-1;i>=0;i--){
+const c=COMETS[i];
+c.t+=sec; if(c.t>c.life){ COMETS.splice(i,1); continue; }
+c.x += c.vx*sec*DPR; c.y += c.vy*sec*DPR;
+ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rot);
+ctx.globalAlpha = c.alpha*(1 - c.t/c.life);
+ctx.drawImage(ST, -ST.width/2, -ST.height/2);
+ctx.restore();
+}
+
+raf();
+}
+
+// Static fallback
+function still(){
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation="lighter"; ctx.globalAlpha=OPACITY;
+for(let i=0;i<34;i++){
+const spr = Math.random()>.7?E_BIG:(Math.random()>.5?E_MED:E_SMALL);
+const x=Math.random()*W, y=Math.random()*H;
+ctx.globalAlpha=OPACITY*rnd(.6,1.1);
+ctx.save(); ctx.translate(x,y); ctx.rotate(rnd(-.2,.2));
+ctx.drawImage(spr,-spr.width/2,-spr.height/2); ctx.restore();
+}
+}
+
+fit(); scheduleComet();
+if(REDUCED||SAVE) still(); else { last=performance.now(); raf(); }
+})();
+</script>
+
+
+<!-- ARXANGEL — Full-Screen Dust Orbs (site-wide, fixed, Carrd-safe) v2 -->
+<style>
+#axDustFS{position:fixed;inset:0;width:100vw;height:100vh;z-index:5;pointer-events:none}
+#axDustFS canvas{position:absolute;inset:0;display:block;filter:contrast(108%) saturate(108%) blur(.2px)}
+@media (prefers-reduced-motion:reduce){ #axDustFS canvas{filter:none} }
+</style>
+<div id="axDustFS" aria-hidden="true"><canvas id="axDustCanvas"></canvas></div>
+
+<script>
+(() => { "use strict";
+// Co-op density: when embed9 + embed10 both run, each shrinks itself
+window.__AX_FX_LAYERS__ = (window.__AX_FX_LAYERS__|0) + 1;
+
+// ----- Tunables (brand-safe defaults) -----
+const COLOR1 = "#F5C400", COLOR2 = "#FFEAA6";
+const SCALE = 1.20;
+const MAX_DPR = 2;
+const SPEED = 0.18;
+const OPACITY = 0.10;
+const SPARKLES = 0;
+
+const wrap = document.getElementById("axDustFS");
+const C = document.getElementById("axDustCanvas");
+if (!wrap || !C) return;
+const ctx = C.getContext("2d", { alpha:true, desynchronized:true });
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAVE = !!(navigator.connection && navigator.connection.saveData);
+
+let DPR = Math.min(MAX_DPR, devicePixelRatio || 1), W=1, H=1, area=1;
+function fit(){
+DPR = Math.min(MAX_DPR, devicePixelRatio || 1);
+const r = wrap.getBoundingClientRect();
+W = Math.max(1, Math.floor(r.width * DPR));
+H = Math.max(1, Math.floor(r.height * DPR));
+C.width = W; C.height = H; C.style.width = r.width+"px"; C.style.height = r.height+"px";
+area = (W*H)/(DPR*DPR);
+seed();
+}
+addEventListener("resize", fit, {passive:true});
+
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const hex2rgba=(h,a=1)=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return`rgba(${r},${g},${b},${a})`};
+
+function sprite(R, aInner=0.45, aMid=0.20){
+const S = document.createElement("canvas");
+S.width = S.height = Math.max(2, Math.round(R*2));
+const g = S.getContext("2d");
+const grd = g.createRadialGradient(R,R,0,R,R,R);
+grd.addColorStop(0.00, hex2rgba(COLOR1, aInner));
+grd.addColorStop(0.55, hex2rgba(COLOR2, aMid));
+grd.addColorStop(1.00, hex2rgba(COLOR2, 0));
+g.fillStyle = grd; g.beginPath(); g.arc(R,R,R,0,6.283); g.fill();
+return S;
+}
+
+const S_BIG = sprite(46*SCALE, .42, .18);
+const S_MED = sprite(28*SCALE, .40, .16);
+const S_SM = sprite(16*SCALE, .38, .14);
+const S_TW = sprite(3.5, 1, 0.5);
+
+let ORBS=[], TW=[];
+function makeOrb(){
+const depth = Math.random();
+const sprPick = Math.random();
+const spr = sprPick>.82? S_BIG : (sprPick>.45? S_MED : S_SM);
+const sp = rnd(.04, SPEED) * (0.5 + depth*1.2);
+return {
+x: Math.random()*W, y: Math.random()*H,
+vx: rnd(-sp, sp*0.8), vy: rnd(-sp*0.4, sp),
+a: rnd(0.65, 1), d: depth, s: spr, t: rnd(0, 6.283)
+};
+}
+function makeTw(){ return {x:Math.random()*W,y:Math.random()*H,vx:rnd(-.06,.06),vy:rnd(-.10,-.02),t:0,life:rnd(1.2,2.2)}; }
+
+function densityFactor(){
+const layers = Math.max(1, window.__AX_FX_LAYERS__|0);
+return layers >= 2 ? 0.6 : 1.0;
+}
+
+function seed(){
+const mobile = Math.min(innerWidth, innerHeight) < 768;
+const density = (mobile ? 0.85 : 1) * densityFactor();
+// Tightened: cap 260 → 180, floor 90 → 70
+const orbCount = Math.round(density * Math.min(180, 70 + area/120000));
+const twCount = SPARKLES ? Math.round(density * Math.min(24, 6 + area/800000)) : 0;
+
+while(ORBS.length < orbCount) ORBS.push(makeOrb());
+ORBS.length = orbCount;
+
+while(TW.length < twCount) TW.push(makeTw());
+TW.length = twCount;
+}
+
+let mx=0.5, my=0.5;
+addEventListener("pointermove", e=>{
+const {innerWidth:w, innerHeight:h} = window;
+mx = Math.max(0, Math.min(1, e.clientX / w));
+my = Math.max(0, Math.min(1, e.clientY / h));
+}, {passive:true});
+
+let last=performance.now(), paused=false, fps=60, rafId=0;
+document.addEventListener("visibilitychange", ()=>{
+paused = document.hidden;
+if (paused && rafId){ cancelAnimationFrame(rafId); rafId=0; }
+else if (!paused){ last=performance.now(); raf(); }
+}, {passive:true});
+
+function raf(){ if(paused) return; rafId = requestAnimationFrame(tick); }
+function tick(now){
+const dt = Math.min(100, now-last); last = now;
+fps = 0.9*fps + 0.1*(1000/dt);
+
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation = "lighter";
+ctx.globalAlpha = OPACITY;
+
+const windX = Math.sin(now*0.00008)*0.10;
+const windY = Math.cos(now*0.00005)*0.06;
+const parX = (mx-0.5)*0.18*DPR;
+const parY = (my-0.5)*0.10*DPR;
+
+const skip = (fps<28)?2:1;
+
+for(let i=0;i<ORBS.length;i+=skip){
+const p=ORBS[i];
+p.vx += (windX*0.02 - p.vx)*0.006;
+p.vy += (windY*0.02 - p.vy)*0.006;
+
+p.x += (p.vx + parX*(0.3+p.d)) * DPR;
+p.y += (p.vy + parY*(0.2+p.d)) * DPR;
+
+if (p.x < -60) p.x = W+40; if (p.x > W+60) p.x = -40;
+if (p.y < -60) p.y = H+40; if (p.y > H+60) p.y = -40;
+
+ctx.globalAlpha = OPACITY * p.a * (0.6 + p.d*0.7);
+const s=p.s; ctx.drawImage(s, p.x - s.width/2, p.y - s.height/2);
+}
+
+if (SPARKLES){
+for(let i=0;i<TW.length;i+=skip){
+const t=TW[i]; t.t += dt/1000;
+if(t.t>t.life){ TW[i]=makeTw(); continue; }
+t.x += t.vx*DPR; t.y += t.vy*DPR;
+if(t.x<-10||t.x>W+10||t.y<-10||t.y>H+10){ TW[i]=makeTw(); continue; }
+ctx.globalAlpha = 0.18 * Math.sin(Math.PI*(t.t/t.life));
+ctx.drawImage(S_TW, t.x - S_TW.width/2, t.y - S_TW.height/2);
+}
+}
+
+raf();
+}
+
+function still(){
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation="lighter"; ctx.globalAlpha = OPACITY;
+for(let i=0;i<36;i++){
+const spr = Math.random()>.7?S_BIG:(Math.random()>.5?S_MED:S_SM);
+const x=Math.random()*W, y=Math.random()*H;
+ctx.globalAlpha = OPACITY * rnd(.6,1.1);
+ctx.drawImage(spr, x - spr.width/2, y - spr.height/2);
+}
+}
+
+fit();
+if (REDUCED || SAVE) still(); else { last=performance.now(); raf(); }
+})();
+</script>

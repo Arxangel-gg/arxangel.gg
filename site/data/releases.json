@@ -1,0 +1,50 @@
+{
+  "$comment": "ARXΛNGΞL discography — the no-backend fallback for the playlist. If the Netlify Spotify function (CONFIG.music.releasesEndpoint, see README §7) is deployed, it OVERRIDES this list and your whole catalog auto-populates with zero edits. Otherwise, add a release object below (title + spotifyTrack id + cover URL — grab the 640px cover from i.scdn.co) and it appears in the playlist. SUMMONED is pinned first via CONFIG.music.featuredTitle; the newest releaseDate gets the 'Latest' tag.",
+  "releases": [
+    {
+      "id": "summoned",
+      "title": "SUMMONED",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-05-09",
+      "cover": "https://i.scdn.co/image/ab67616d0000b27370ea0d5c62dcd6147d4850d9",
+      "spotifyType": "track",
+      "spotifyTrack": "7peXDPy5HHonqdJm5tztRT",
+      "featured": true,
+      "links": { "spotify": "https://open.spotify.com/track/7peXDPy5HHonqdJm5tztRT" }
+    },
+    {
+      "id": "ultra-instinct-every-day",
+      "title": "Ultra Instinct Every Day",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-06-19",
+      "cover": "https://i.scdn.co/image/ab67616d0000b273110c01d4a29b711b9abb4aee",
+      "spotifyType": "track",
+      "spotifyTrack": "1cXQmStpoadC0ycFPVrIxs",
+      "links": { "spotify": "https://open.spotify.com/track/1cXQmStpoadC0ycFPVrIxs" }
+    },
+    {
+      "id": "warrior",
+      "title": "Warrior",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-06-18",
+      "cover": "https://i.scdn.co/image/ab67616d0000b27305bbcfa99e7206ce29d96207",
+      "spotifyType": "track",
+      "spotifyTrack": "3sNBmx2rbMXatGJ9bKIBlT",
+      "links": { "spotify": "https://open.spotify.com/track/3sNBmx2rbMXatGJ9bKIBlT" }
+    },
+    {
+      "id": "sifu-sufi",
+      "title": "Sifu Sufi",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-06-16",
+      "cover": "https://i.scdn.co/image/ab67616d0000b2735a3980e64c6444ad6abe1e19",
+      "spotifyType": "track",
+      "spotifyTrack": "4pG5rl5Ki4pntvLAfxZeYb",
+      "links": { "spotify": "https://open.spotify.com/track/4pG5rl5Ki4pntvLAfxZeYb" }
+    }
+  ]
+}

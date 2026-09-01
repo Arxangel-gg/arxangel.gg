@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ARXANGEL — Ascendant Mark. Haloed wings + central spire + apex star.
+     Standalone, static, fully scalable. Hero uses an inline animated variant. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"
+     fill="none" role="img" aria-label="ARXANGEL emblem">
+  <defs>
+    <linearGradient id="axGold" x1="64" y1="14" x2="64" y2="114" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFEAA6"/>
+      <stop offset="0.5" stop-color="#E5BD6D"/>
+      <stop offset="1" stop-color="#BC823D"/>
+    </linearGradient>
+    <radialGradient id="axBloom" cx="64" cy="60" r="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E5BD6D" stop-opacity="0.30"/>
+      <stop offset="0.6" stop-color="#BC823D" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#BC823D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- soft bloom -->
+  <circle cx="64" cy="60" r="58" fill="url(#axBloom)"/>
+
+  <!-- halo: outer thin ring + broken inner ring -->
+  <circle cx="64" cy="62" r="55" stroke="url(#axGold)" stroke-width="1.4" opacity="0.55"/>
+  <circle cx="64" cy="62" r="47" stroke="url(#axGold)" stroke-width="2.2"
+          stroke-linecap="round" stroke-dasharray="42 30" opacity="0.85"/>
+
+  <!-- wings (right; left is mirrored) -->
+  <g fill="url(#axGold)">
+    <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z"/>
+    <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z"
+          transform="matrix(-1 0 0 1 128 0)"/>
+  </g>
+
+  <!-- central spire -->
+  <path d="M64 38 L70 66 L64 102 L58 66 Z" fill="url(#axGold)"/>
+  <path d="M64 44 L66.5 66 L64 94 L61.5 66 Z" fill="#FFF6DA" opacity="0.45"/>
+
+  <!-- apex star (4-point sparkle) -->
+  <path d="M64 16 C65.2 27 66.5 29 78 31 C66.5 33 65.2 35 64 46 C62.8 35 61.5 33 50 31 C61.5 29 62.8 27 64 16 Z"
+        fill="url(#axGold)"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "ARXANGEL",
+  "short_name": "ARXANGEL",
+  "description": "The official home of ARXANGEL. Stream SUMMONED and join the Order.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07060a",
+  "theme_color": "#0b0805",
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "assets/icons/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "assets/icons/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "assets/icons/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}

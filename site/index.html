@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- ===== Primary SEO =====
+       Visible/brand name is the official stylized "ARXΛNGΞL"; the plain-Latin
+       "ARXANGEL" is kept in the description + JSON-LD so search queries match. -->
+  <title>ARXΛNGΞL — The Consequence</title>
+  <meta name="description" content="The official home of ARXANGEL (ARXΛNGΞL). Stream the debut theme “SUMMONED,” enter the live transmissions, and join the Order. Ordained by Chaos. Forged in Fire. Unleashed in Glory." />
+  <meta name="author" content="ARXANGEL" />
+  <meta name="theme-color" content="#0b0805" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="canonical" href="https://arxangel.gg/" />
+
+  <!-- ===== Open Graph / Twitter ===== -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ARXΛNGΞL" />
+  <meta property="og:title" content="ARXΛNGΞL — The Consequence" />
+  <meta property="og:description" content="Stream the debut theme “SUMMONED,” enter the live transmissions, and join the Order." />
+  <meta property="og:url" content="https://arxangel.gg/" />
+  <meta property="og:image" content="https://arxangel.gg/assets/img/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ARXΛNGΞL — The Consequence" />
+  <meta name="twitter:description" content="Stream the debut theme “SUMMONED.” Ordained by Chaos. Forged in Fire." />
+  <meta name="twitter:image" content="https://arxangel.gg/assets/img/og-image.jpg" />
+
+  <!-- ===== Icons / Manifest ===== -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <!-- ===== Performance hints ===== -->
+  <!-- Audio is streamed from Supabase; warm the connection early. -->
+  <link rel="preconnect" href="https://glkkdqmeumaxfjlctxuo.supabase.co" crossorigin />
+  <link rel="preload" href="fonts/cinzel.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/ebgaramond-greek.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="media/poster.jpg" as="image" fetchpriority="high" />
+
+  <!-- ===== Styles ===== -->
+  <link rel="stylesheet" href="css/fonts.css?v=2" />
+  <link rel="stylesheet" href="css/main.css?v=2" />
+
+  <!-- ===== Structured data (helps search + rich results) ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "ARXΛNGΞL",
+    "alternateName": ["ARXANGEL", "Arxangel"],
+    "url": "https://arxangel.gg/",
+    "image": "https://arxangel.gg/assets/img/og-image.jpg",
+    "genre": ["Electronic", "Cinematic", "Gaming"],
+    "description": "The Consequence. Not a streamer. Not a soldier. The inevitable consequence of freedom's enemies.",
+    "sameAs": [
+      "https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n",
+      "https://twitch.tv/arxangel_gg",
+      "https://x.com/arxangel_gg",
+      "https://steamcommunity.com/profiles/76561198083345465/"
+    ],
+    "track": [
+      { "@type": "MusicRecording", "name": "SUMMONED", "url": "https://open.spotify.com/track/7peXDPy5HHonqdJm5tztRT", "byArtist": { "@type": "MusicGroup", "name": "ARXΛNGΞL" } },
+      { "@type": "MusicRecording", "name": "Ultra Instinct Every Day", "url": "https://open.spotify.com/track/1cXQmStpoadC0ycFPVrIxs", "byArtist": { "@type": "MusicGroup", "name": "ARXΛNGΞL" } },
+      { "@type": "MusicRecording", "name": "Warrior", "url": "https://open.spotify.com/track/3sNBmx2rbMXatGJ9bKIBlT", "byArtist": { "@type": "MusicGroup", "name": "ARXΛNGΞL" } },
+      { "@type": "MusicRecording", "name": "Sifu Sufi", "url": "https://open.spotify.com/track/4pG5rl5Ki4pntvLAfxZeYb", "byArtist": { "@type": "MusicGroup", "name": "ARXΛNGΞL" } }
+    ]
+  }
+  </script>
+
+  <!-- Flip no-js → js before paint so we never show JS-only states to no-JS users. -->
+  <script>document.documentElement.className = document.documentElement.className.replace("no-js", "js");</script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Scroll progress (filled/animated by JS; harmless if JS off) -->
+  <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
+
+  <!-- Ambient FX layer (canvas injected by ambient.js) -->
+  <div id="ax-fx" class="fx-layer" aria-hidden="true"></div>
+
+  <!-- ======================================================================
+       TOP NAVIGATION
+       ==================================================================== -->
+  <header class="nav" id="nav" data-nav>
+    <div class="nav__inner">
+      <a class="nav__brand" href="#top" aria-label="ARXANGEL — home">
+        <!-- compact mark -->
+        <svg class="nav__mark" viewBox="0 0 128 128" width="30" height="30" aria-hidden="true" focusable="false">
+          <use href="#ax-emblem-glyph" />
+        </svg>
+        <span class="nav__word">ARXΛNGΞL</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#manifesto">Manifesto</a>
+        <a href="#music">Music</a>
+        <a href="#order">The Order</a>
+        <a href="#live">Live</a>
+        <a href="#range">Range</a>
+        <a href="#bets" data-flag-link="bets" hidden>Bets</a>
+        <a href="#join">Join</a>
+      </nav>
+
+      <div class="nav__actions">
+        <a class="btn btn--ghost nav__cta" href="#music">
+          <span class="btn__icon" aria-hidden="true">▶</span> Listen
+        </a>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-mobile" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="nav__mobile" id="nav-mobile" hidden>
+      <a href="#manifesto">Manifesto</a>
+      <a href="#music">Music</a>
+      <a href="#order">The Order</a>
+      <a href="#live">Live</a>
+      <a href="#range">Range</a>
+      <a href="#bets" data-flag-link="bets" hidden>Bets</a>
+      <a href="#join">Join</a>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ====================================================================
+         HERO
+         ================================================================== -->
+    <section class="hero" id="top">
+      <!-- Cinematic background video with graceful poster fallback.
+           autoplay+muted+playsinline is required for mobile autoplay; JS pauses
+           it off-screen and disables it for reduced-motion / data-saver users. -->
+      <div class="hero__bg">
+        <video class="hero__video" id="hero-video"
+               poster="media/poster.jpg"
+               autoplay muted loop playsinline preload="metadata"
+               aria-hidden="true" tabindex="-1">
+          <source src="media/bg.webm" type="video/webm" />
+          <source src="media/bg.mp4" type="video/mp4" />
+        </video>
+        <div class="hero__scrim" aria-hidden="true"></div>
+        <div class="hero__vignette" aria-hidden="true"></div>
+      </div>
+
+      <div class="hero__content">
+        <p class="sigil" aria-hidden="true">≡&#10016;≡</p>
+
+        <!-- Animated emblem (the large hero variant) -->
+        <div class="emblem-wrap" aria-hidden="true">
+          <svg class="emblem" viewBox="0 0 128 128" role="presentation" focusable="false">
+            <defs>
+              <linearGradient id="ax-emblem-grad" x1="64" y1="14" x2="64" y2="114" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="var(--gold-200)" />
+                <stop offset="0.5" stop-color="var(--gold-400)" />
+                <stop offset="1" stop-color="var(--amber)" />
+              </linearGradient>
+              <radialGradient id="ax-emblem-bloom" cx="64" cy="60" r="58" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="var(--gold-400)" stop-opacity="0.32" />
+                <stop offset="0.6" stop-color="var(--amber)" stop-opacity="0.06" />
+                <stop offset="1" stop-color="var(--amber)" stop-opacity="0" />
+              </radialGradient>
+              <!-- Reusable glyph (no bloom/halo) for nav + footer -->
+              <g id="ax-emblem-glyph" fill="url(#ax-emblem-grad)">
+                <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z" />
+                <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z" transform="matrix(-1 0 0 1 128 0)" />
+                <path d="M64 38 L70 66 L64 102 L58 66 Z" />
+                <path d="M64 16 C65.2 27 66.5 29 78 31 C66.5 33 65.2 35 64 46 C62.8 35 61.5 33 50 31 C61.5 29 62.8 27 64 16 Z" />
+              </g>
+            </defs>
+
+            <circle class="emblem__bloom" cx="64" cy="60" r="58" fill="url(#ax-emblem-bloom)" />
+            <circle class="emblem__ring" cx="64" cy="62" r="55" fill="none" stroke="url(#ax-emblem-grad)" stroke-width="1.4" opacity="0.5" />
+            <circle class="emblem__ring-broken" cx="64" cy="62" r="47" fill="none" stroke="url(#ax-emblem-grad)" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="42 30" />
+            <g class="emblem__wings" fill="url(#ax-emblem-grad)">
+              <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z" />
+              <path d="M62 72 Q86 47 110 45 Q98 53 96 55 Q92 53 90 59 Q84 57 82 63 Q76 61 74 67 Q68 65 66 71 Q63 71 62 72 Z" transform="matrix(-1 0 0 1 128 0)" />
+            </g>
+            <path class="emblem__spire" d="M64 38 L70 66 L64 102 L58 66 Z" fill="url(#ax-emblem-grad)" />
+            <path class="emblem__spire-hi" d="M64 44 L66.5 66 L64 94 L61.5 66 Z" fill="#FFF6DA" opacity="0.45" />
+            <path class="emblem__star" d="M64 16 C65.2 27 66.5 29 78 31 C66.5 33 65.2 35 64 46 C62.8 35 61.5 33 50 31 C61.5 29 62.8 27 64 16 Z" fill="url(#ax-emblem-grad)" />
+          </svg>
+        </div>
+
+        <h1 class="hero__word" aria-label="ARXANGEL">
+          <span class="hero__word-flank" aria-hidden="true">&#10016;</span>
+          <span aria-hidden="true">ARXΛNGΞL</span>
+          <span class="hero__word-flank" aria-hidden="true">&#10016;</span>
+        </h1>
+
+        <p class="hero__tagline">Ordained by Chaos. Forged in Fire. Unleashed in Glory.</p>
+
+        <!-- Auto-filled by releases.js with the newest transmission -->
+        <p class="hero__announce" data-hero-announce hidden></p>
+
+        <div class="hero__cta">
+          <button class="btn btn--gold" type="button" data-scroll-to="#music">
+            <span class="btn__icon" aria-hidden="true">▶</span> Listen
+          </button>
+          <a class="btn btn--ghost" data-link="twitch" href="https://twitch.tv/arxangel_gg" target="_blank" rel="noopener">
+            Follow on Twitch
+          </a>
+        </div>
+      </div>
+
+      <a class="hero__scroll" href="#manifesto" aria-label="Scroll to manifesto">
+        <span class="hero__scroll-line" aria-hidden="true"></span>
+        <span class="hero__scroll-text">Descend</span>
+      </a>
+    </section>
+
+    <!-- ====================================================================
+         MANIFESTO / CREED
+         ================================================================== -->
+    <section class="section manifesto" id="manifesto">
+      <div class="container">
+        <p class="eyebrow reveal" data-reveal>The Creed</p>
+        <blockquote class="manifesto__quote">
+          <p class="reveal" data-reveal>The Arxangel is not born — <em>he is summoned.</em></p>
+          <p class="reveal" data-reveal data-reveal-delay="1">Where liberty fades and chaos spreads, a singular force descends with fire and divine wrath.</p>
+          <p class="reveal" data-reveal data-reveal-delay="2">The battlefield is his cathedral. The mission, <em>sacred.</em></p>
+        </blockquote>
+        <p class="manifesto__sign reveal" data-reveal data-reveal-delay="3">
+          The Consequence. <span>Not a streamer. Not a soldier.</span> The inevitable consequence of freedom's enemies.
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         THE MUSIC — auto-populating playlist (Spotify).
+         Cards render from modules/releases.js: the optional Netlify function
+         (your whole Spotify catalog, zero-touch) if configured, otherwise
+         data/releases.json. Each card loads its Spotify player only on "play".
+         ================================================================== -->
+    <section class="section music" id="music">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>The Music</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="1">Transmissions</h2>
+          <p class="section__lede reveal" data-reveal data-reveal-delay="2">Cinematic singles, straight from the source. Press play — and every new release lands here automatically.</p>
+          <div class="music__actions reveal" data-reveal data-reveal-delay="3">
+            <a class="btn btn--gold" data-link="spotify" href="https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n" target="_blank" rel="noopener">Follow on Spotify</a>
+          </div>
+        </header>
+
+        <div class="tracks" data-music-grid></div>
+        <p class="music__empty" data-music-empty hidden>
+          Tuning the signal — <a href="https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n" target="_blank" rel="noopener">listen on Spotify</a>.
+        </p>
+        <noscript>
+          <p class="music__empty">Listen to ARXΛNGΞL on <a href="https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n">Spotify</a>.</p>
+        </noscript>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         THE ORDER — universe pillars
+         ================================================================== -->
+    <section class="section pillars" id="order">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>The Arxangel Universe</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="1">Four fronts. One Order.</h2>
+        </header>
+
+        <div class="pillars__grid">
+          <article class="pillar reveal" data-reveal>
+            <span class="pillar__index">01</span>
+            <h3 class="pillar__title">Music</h3>
+            <p class="pillar__text">Cinematic electronic transmissions, beginning with <strong>SUMMONED</strong>. Sound engineered for the descent.</p>
+            <a class="pillar__link" href="#music">Enter the sound <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="pillar reveal" data-reveal data-reveal-delay="1">
+            <span class="pillar__index">02</span>
+            <h3 class="pillar__title">Stream</h3>
+            <p class="pillar__text">Live operations on Twitch. Precision under fire, broadcast in real time. Tune in when the signal goes hot.</p>
+            <a class="pillar__link" href="#live">Watch live <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="pillar reveal" data-reveal data-reveal-delay="2">
+            <span class="pillar__index">03</span>
+            <h3 class="pillar__title">Battlefield</h3>
+            <p class="pillar__text">Helldivers 2 and the wars beyond. Order from chaos, light from fire, victory from orbit.</p>
+            <a class="pillar__link" data-link="steam" href="https://steamcommunity.com/profiles/76561198083345465/" target="_blank" rel="noopener">View on Steam <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="pillar reveal" data-reveal data-reveal-delay="3">
+            <span class="pillar__index">04</span>
+            <h3 class="pillar__title">The Order</h3>
+            <p class="pillar__text">A growing legion. Future drops, collaborations, and rituals known only to those who join.</p>
+            <a class="pillar__link" href="#join">Join the Order <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+
+        <!-- The Vault — future releases render here from /data/releases.json -->
+        <div class="vault" id="vault" data-vault hidden>
+          <h3 class="vault__title reveal" data-reveal>The Vault</h3>
+          <div class="vault__grid" data-vault-grid></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         LIVE — Twitch facade (iframe loads only on demand)
+         ================================================================== -->
+    <section class="section live" id="live" data-live hidden>
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Live Transmission</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="1">When the signal goes hot</h2>
+        </header>
+
+        <div class="live__frame reveal" data-reveal data-reveal-delay="2">
+          <button class="live__facade" type="button" data-live-play aria-label="Load the live stream">
+            <img class="live__poster" src="media/poster.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" />
+            <span class="live__play"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+            <span class="live__badge">Tune in</span>
+          </button>
+        </div>
+
+        <div class="live__actions reveal" data-reveal data-reveal-delay="3">
+          <a class="btn btn--gold" data-link="twitch" href="https://twitch.tv/arxangel_gg" target="_blank" rel="noopener">Follow on Twitch</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         THE RANGE — ARXAIM aim trainer, self-hosted at /range/ (re-themed to
+         the brand). The stage is a designed facade; "Enter The Range" opens the
+         full game page (which has a ← back link home).
+         ================================================================== -->
+    <section class="section range" id="range">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>The Firing Range</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="1">Train Your Aim</h2>
+          <p class="section__lede reveal" data-reveal data-reveal-delay="2">Step into the ARXΛNGΞL range — five precision drills, a global leaderboard, and personal bests. Runs in your browser. Zero installs.</p>
+        </header>
+
+        <a class="range__stage reveal" data-reveal data-reveal-delay="2" href="range/" aria-label="Enter The Range aim trainer">
+          <span class="range__grid" aria-hidden="true"></span>
+          <span class="range__target" style="--x:19%;--y:32%;--delay:0s"></span>
+          <span class="range__target" style="--x:73%;--y:26%;--delay:.5s"></span>
+          <span class="range__target" style="--x:63%;--y:64%;--delay:1s"></span>
+          <span class="range__target range__target--sm" style="--x:33%;--y:68%;--delay:1.5s"></span>
+          <svg class="range__xhair" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="50" cy="50" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="50" y1="4" x2="50" y2="20" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="50" y1="80" x2="50" y2="96" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="4" y1="50" x2="20" y2="50" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="80" y1="50" x2="96" y2="50" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="50" cy="50" r="2" fill="currentColor"/>
+          </svg>
+          <span class="range__cta"><span class="range__play" aria-hidden="true">▶</span> Enter The Range</span>
+        </a>
+
+        <ul class="range__modes reveal" data-reveal data-reveal-delay="3">
+          <li>Gridshot</li>
+          <li>Flick</li>
+          <li>Precision</li>
+          <li>Tracking</li>
+          <li>Reflex</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ARXΛNGΞL BETS — virtual "Halos" prediction game (existing micro-app).
+         Visibility is flag-controlled (data-flag="bets"): shown by default, but
+         toggleable site-wide via the remote flags file (CONFIG.data.flagsUrl) or
+         personally with ?bets=on / ?bets=off. The iframe src is injected from
+         CONFIG.embeds.betsUrl only when the flag is on, so it never loads hidden.
+         ================================================================== -->
+    <section class="section bets" id="bets" data-flag="bets" hidden>
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>The Wager</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="1">ARXΛNGΞL Bets</h2>
+          <p class="section__lede reveal" data-reveal data-reveal-delay="2">Halos are virtual — no real money. Read the battle, stake your Halos, climb the leaderboard.</p>
+        </header>
+        <div class="bets__frame reveal" data-reveal data-reveal-delay="2">
+          <iframe class="bets__iframe" title="ARXANGEL Bets" data-embed="betsUrl"
+                  loading="lazy" allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         JOIN THE ORDER
+         ================================================================== -->
+    <section class="section join" id="join">
+      <div class="container join__inner">
+        <p class="eyebrow reveal" data-reveal>Enlist</p>
+        <h2 class="section__title section__title--xl reveal" data-reveal data-reveal-delay="1">Join the Order</h2>
+        <p class="join__text reveal" data-reveal data-reveal-delay="2">
+          Signal acquired. Step forward into the legion that turns chaos into order.
+        </p>
+
+        <div class="join__cta reveal" data-reveal data-reveal-delay="3">
+          <a class="btn btn--gold btn--lg" data-link="discord" href="#" target="_blank" rel="noopener" data-hide-if-empty>Join on Discord</a>
+          <a class="btn btn--ghost btn--lg" data-link="twitch" href="https://twitch.tv/arxangel_gg" target="_blank" rel="noopener">Follow on Twitch</a>
+        </div>
+
+        <ul class="social reveal" data-reveal data-reveal-delay="4" data-social>
+          <li><a data-link="twitch" href="https://twitch.tv/arxangel_gg" target="_blank" rel="noopener" aria-label="Twitch">Twitch</a></li>
+          <li><a data-link="x" href="https://x.com/arxangel_gg" target="_blank" rel="noopener" aria-label="X">X</a></li>
+          <li><a data-link="spotify" href="https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n" target="_blank" rel="noopener" aria-label="Spotify">Spotify</a></li>
+          <li><a data-link="steam" href="https://steamcommunity.com/profiles/76561198083345465/" target="_blank" rel="noopener" aria-label="Steam">Steam</a></li>
+          <li><a data-link="youtube" href="#" target="_blank" rel="noopener" aria-label="YouTube" data-hide-if-empty>YouTube</a></li>
+          <li><a data-link="instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram" data-hide-if-empty>Instagram</a></li>
+          <li><a data-link="tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok" data-hide-if-empty>TikTok</a></li>
+          <li><a data-link="discord" href="#" target="_blank" rel="noopener" aria-label="Discord" data-hide-if-empty>Discord</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       FOOTER
+       ==================================================================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <svg class="footer__mark" viewBox="0 0 128 128" width="34" height="34" aria-hidden="true"><use href="#ax-emblem-glyph" /></svg>
+        <span class="footer__word" aria-label="ARXANGEL"><span aria-hidden="true">ARXΛNGΞL</span></span>
+      </div>
+
+      <p class="footer__transmission" aria-hidden="true">Transmission: Order from Chaos. Light from Fire. Victory from Orbit.</p>
+
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="#manifesto">Manifesto</a>
+        <a href="#music">Music</a>
+        <a href="#order">The Order</a>
+        <a href="#range">Range</a>
+        <a href="#join">Join</a>
+      </nav>
+
+      <div class="footer__row">
+        <button class="footer__share" type="button" data-share>Share transmission</button>
+        <small class="footer__copy">© <span data-year>2026</span> ARXANGEL. All transmissions reserved.</small>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App entry (ES module → deferred, non-blocking). config.js is imported inside. -->
+  <script type="module" src="js/main.js?v=2"></script>
+
+  <!-- No-JS users still get the full content; this only hides JS-only affordances. -->
+  <noscript>
+    <style>.scroll-progress,.nav__toggle,.hero__scroll,[data-player],[data-live]{display:none!important}</style>
+  </noscript>
+
+  <!-- Failsafe: if the module pipeline ever fails to load (network/parse error),
+       reveal all content after a short delay so nothing is left hidden by the
+       reveal styles. A normal load disables this via the .reveal-active marker. -->
+  <script>
+    setTimeout(function () {
+      if (document.documentElement.classList.contains("reveal-active")) return;
+      var els = document.querySelectorAll("[data-reveal]");
+      for (var i = 0; i < els.length; i++) els[i].classList.add("is-visible");
+    }, 2600);
+  </script>
+</body>
+</html>

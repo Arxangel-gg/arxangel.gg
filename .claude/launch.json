@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "arxangel",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["devserve.py"],
+      "port": 8124
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# ============================================================================
+# ARXANGEL — repo hygiene
+# ============================================================================
+
+# Source master video (19MB). The site ships the re-encoded ~1MB
+# site/media/bg.{webm,mp4} instead — keep the master out of git.
+BG_Video_Render1.mp4
+
+# Local secrets for tools/arx.py (optional Spotify API credentials).
+# The sync tool works WITHOUT these — they are only a fallback.
+.env
+tools/.env
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+__pycache__/
+*.pyc
+
+# Claude Code local overrides (launch.json IS tracked — it's the shared dev server config)
+.claude/settings.local.json

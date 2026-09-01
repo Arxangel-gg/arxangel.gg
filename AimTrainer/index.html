@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARXAIM — Precision Aim Trainer</title>
+<meta name="description" content="ARXAIM — a fast, free browser aim trainer. Gridshot, Flick, Precision, Tracking and Reflex modes with scoring, streaks and personal bests.">
+<meta name="theme-color" content="#07070d">
+<meta property="og:title" content="ARXAIM — Precision Aim Trainer">
+<meta property="og:description" content="Train your aim in the browser. 5 modes, personal bests, zero installs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%23a855f7' stroke-width='10'/%3E%3Ccircle cx='50' cy='50' r='13' fill='%2322d3ee'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== MENU ===================== -->
+<section id="menu" class="screen active">
+  <div class="menu-inner">
+    <header class="brand">
+      <h1>ARX<span>AIM</span></h1>
+      <p class="sub">PRECISION AIM TRAINER</p>
+    </header>
+
+    <div class="mode-grid" id="modeGrid"></div>
+
+    <div class="panels">
+      <div class="panel settings-panel">
+        <h3>SETTINGS</h3>
+
+        <div class="setting-row">
+          <label>Duration</label>
+          <div class="seg" id="durSeg">
+            <button data-v="30">30s</button>
+            <button data-v="60">60s</button>
+            <button data-v="120">120s</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>Target size</label>
+          <div class="seg" id="sizeSeg">
+            <button data-v="0.75">Small</button>
+            <button data-v="1">Normal</button>
+            <button data-v="1.3">Large</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>Crosshair</label>
+          <div class="seg" id="xhairSeg">
+            <button data-v="dot">Dot</button>
+            <button data-v="cross">Cross</button>
+            <button data-v="circle">Circle</button>
+          </div>
+          <input type="color" id="xhairColor" title="Crosshair color">
+        </div>
+
+        <div class="setting-row">
+          <label>Volume</label>
+          <input type="range" id="volRange" min="0" max="100" step="1">
+          <span class="vol-val" id="volVal">60%</span>
+        </div>
+      </div>
+
+      <div class="panel history-panel">
+        <h3>RECENT RUNS</h3>
+        <ul id="historyList"><li class="empty">No runs yet — pick a mode above.</li></ul>
+      </div>
+    </div>
+
+    <footer class="menu-foot">
+      <span><kbd>1</kbd>–<kbd>5</kbd> quick start</span>
+      <span><kbd>ESC</kbd> pause</span>
+      <span><kbd>R</kbd> restart</span>
+      <span class="foot-brand">arxangel.gg</span>
+    </footer>
+  </div>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<section id="game" class="screen">
+  <canvas id="canvas"></canvas>
+
+  <div id="hud">
+    <div class="hud-block hud-left">
+      <div class="hud-item">
+        <div class="hud-label">SCORE</div>
+        <div class="hud-value" id="hudScore">0</div>
+      </div>
+      <div class="hud-item" id="hudStreakWrap">
+        <div class="hud-label">STREAK</div>
+        <div class="hud-value" id="hudStreak">0</div>
+      </div>
+    </div>
+    <div class="hud-block hud-center">
+      <div class="hud-time" id="hudTime">60.0</div>
+      <div class="hud-mode" id="hudMode">GRIDSHOT</div>
+    </div>
+    <div class="hud-block hud-right">
+      <div class="hud-item">
+        <div class="hud-label" id="hudAccLabel">ACCURACY</div>
+        <div class="hud-value" id="hudAcc">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="countdown" class="overlay hidden">
+    <div class="count-num" id="countNum">3</div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <div class="overlay-card">
+      <h2>PAUSED</h2>
+      <button class="btn primary" id="btnResume">RESUME</button>
+      <button class="btn" id="btnRestart">RESTART</button>
+      <button class="btn ghost" id="btnQuit">BACK TO MENU</button>
+    </div>
+  </div>
+
+  <div id="results" class="overlay hidden">
+    <div class="overlay-card results-card">
+      <div class="res-mode" id="resMode">GRIDSHOT</div>
+      <div class="res-best hidden" id="resBest">★ NEW PERSONAL BEST ★</div>
+      <div class="res-score" id="resScore">0</div>
+      <div class="res-stats" id="resStats"></div>
+      <div class="res-btns">
+        <button class="btn primary" id="btnAgain">PLAY AGAIN</button>
+        <button class="btn ghost" id="btnMenu">CHANGE MODE</button>
+      </div>
+      <div class="res-hint"><kbd>R</kbd> play again · <kbd>ESC</kbd> menu</div>
+    </div>
+  </div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

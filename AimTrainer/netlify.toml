@@ -1,0 +1,26 @@
+# ARXAIM — Netlify config
+# No build step: the site is plain static files served from the repo root.
+
+[build]
+  publish = "."
+
+# Allow embedding ONLY from arxangel.gg (and this site itself).
+# If you host the trainer on its own subdomain (e.g. aim.arxangel.gg) and
+# link to it instead of iframing, this header simply never gets in the way.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors 'self' https://arxangel.gg https://*.arxangel.gg"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Files aren't content-hashed, so keep caches short to pick up updates fast.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

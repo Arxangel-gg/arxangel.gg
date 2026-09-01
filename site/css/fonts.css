@@ -1,0 +1,40 @@
+/* ============================================================================
+   ARXANGEL — Self-hosted fonts (variable woff2, latin subset)
+   ----------------------------------------------------------------------------
+   Both families are VARIABLE fonts: a single file covers the full weight axis,
+   so we declare one @font-face per family with a weight RANGE. This means zero
+   third-party requests (no Google Fonts), no layout shift, and you can use any
+   weight between the declared bounds in CSS.
+   ========================================================================== */
+
+/* Cinzel — ceremonial display serif (headings, wordmark). Axis: 400–900 */
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("../fonts/cinzel.woff2") format("woff2");
+}
+
+/* Inter — UI / body sans. Axis: 100–900 */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter.woff2") format("woff2");
+}
+
+/* EB Garamond (GREEK subset only) — Cinzel has NO Greek glyphs, so the brand's
+   official Λ (lambda) and Ξ (xi) in "ARXΛNGΞL" would fall back to an ugly system
+   serif. This @font-face is restricted by unicode-range to Greek only, so it is
+   used *exclusively* for Λ/Ξ while Cinzel still renders every Latin letter. It is
+   listed right after Cinzel in --font-display. Variable (matches Cinzel's weight). */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 500 800;
+  font-display: swap;
+  src: url("../fonts/ebgaramond-greek.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
