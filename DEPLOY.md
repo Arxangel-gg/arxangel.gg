@@ -41,98 +41,28 @@ Then tell me and I'll kick the deploy off, or hit **Re-run all jobs** on
 
 ---
 
-## Part 2 — pointing arxangel.gg at it
+## Part 2 — the domain  ✅ DONE
 
-Right now `arxangel.gg` serves the **old Carrd page**. Do this once you've seen
-the site working at the preview URL above.
+`https://arxangel.gg` serves the site. Carrd is retired.
 
-**Your DNS is at Namecheap**, not Cloudflare. (The domain resolves to a
-Cloudflare IP, but that's *Carrd's* CDN sitting in front of their hosting, not
-anything you control — so there are no proxy or SSL-mode settings to worry
-about. This is simpler than it looks.)
+- Namecheap: four GitHub A records on `@`, `www` CNAME to `arxangel-gg.github.io`
+- GitHub Settings -> Pages -> Custom domain: `arxangel.gg` (DNS check passed)
+- Certificate: Let's Encrypt, `CN=arxangel.gg`, auto-renewing
+- `www.arxangel.gg` 301-redirects to the apex
 
-Go to **Namecheap → Domain List → `arxangel.gg` → Manage → Advanced DNS**.
+**`site/CNAME` must stay in the repo.** It preserves the custom domain across
+deploys. Deleting it can silently un-set the domain on a future build.
 
-### 2a. Remove the old records — NOT optional
+> **Gotcha worth remembering.** The `CNAME` file alone does *not* register a
+> custom domain when Pages is built by **GitHub Actions** — that only works for
+> the older branch-based Pages. The domain has to be entered in
+> Settings -> Pages once. Until it is, the domain returns
+> "Site not found · GitHub Pages" even though DNS is perfect.
 
-Adding the new records is only half of it. DNS **round-robins across every A
-record on a host**, so any leftover address keeps taking a share of your
-traffic. Delete exactly these two:
-
-| Delete | Type | Host | Value | Why |
-|---|---|---|---|---|
-| ❌ | A Record | `@` | `172.66.0.70` | Carrd. Left in place, ~20% of visitors get the old page. |
-| ❌ | CNAME Record | `www` | `arxangel.gg.` | Duplicate: a host may only ever have **one** CNAME, and this old one wins over the new one. |
-
-**Leave everything else alone**, in particular:
-
-| Keep | Type | Host | Why |
-|---|---|---|---|
-| ✅ | CNAME | `beastroad` | A different project on its own subdomain — unrelated. |
-| ✅ | TXT | `_github-pages-…` | GitHub's domain verification. Protects you from domain takeover. |
-| ✅ | TXT | `@` (`v=spf1 …`) | Email forwarding. Deleting it breaks mail. |
-
-### 2b. Add GitHub's records
-
-Four **A Records**, all with host `@`:
-
-| Type | Host | Value |
-|---|---|---|
-| A Record | `@` | `185.199.108.153` |
-| A Record | `@` | `185.199.109.153` |
-| A Record | `@` | `185.199.110.153` |
-| A Record | `@` | `185.199.111.153` |
-
-One **CNAME Record**:
-
-| Type | Host | Value |
-|---|---|---|
-| CNAME Record | `www` | `arxangel-gg.github.io.` |
-
-Leave TTL on `Automatic`. Namecheap usually applies changes within half an
-hour, sometimes a couple of minutes.
-
-### 2c. Check it landed
+Re-check any time:
 
 ```bash
 python tools/arx.py dns
-```
-
-That tells you in plain English whether the records are live, what the domain is
-actually serving, and whether the custom domain is switched on yet. Run it as
-often as you like — it changes nothing.
-
-### 2d. Register the domain in Settings  ← required
-
-`site/CNAME` is committed and ships with every build, but **that file alone does
-not register the domain** when Pages is built by GitHub Actions (it only works
-that way for the older branch-based Pages). Until you do this, `arxangel.gg`
-returns *"Site not found · GitHub Pages"*.
-
-Open <https://github.com/Arxangel-gg/arxangel.gg/settings/pages>
-
-Under **Custom domain**, type `arxangel.gg`, press **Save**. GitHub verifies DNS
-(already correct) and starts issuing the certificate.
-
-Then wait a few minutes and tick **Enforce HTTPS** on the same page — the
-checkbox stays greyed out until the certificate exists.
-
-Keep `site/CNAME` in the repo: it preserves the setting across deploys, so a
-future build can't silently clear the custom domain.
-
-### 2e. Confirm
-
-```bash
-python tools/arx.py dns
-```
-
-All four sections should come back green:
-
-```
-OK  All four GitHub A records are live.
-OK  Serving the flagship site.
-OK  HTTPS works - certificate is issued and valid.
-OK  site/CNAME ships with the build.
 ```
 
 ---
