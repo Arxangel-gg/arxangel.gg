@@ -521,13 +521,24 @@ def cmd_dns():
     say("  Resolves to: " + ", ".join(ips))
     on_github = bool(set(ips) & GITHUB_PAGES_IPS)
     missing = GITHUB_PAGES_IPS - set(ips)
+    # Anything that ISN'T GitHub is a leftover record still in the rotation.
+    # DNS round-robins across every A record, so even one stray address sends a
+    # share of visitors to the old host. This is the easiest mistake to make
+    # when adding records without removing the old ones.
+    strays = [ip for ip in ips if ip not in GITHUB_PAGES_IPS]
 
-    if on_github and not missing:
-        ok("DNS is pointed at GitHub Pages. All four A records are live.")
+    if missing:
+        warn("Missing GitHub A record(s): " + ", ".join(sorted(missing)))
     elif on_github:
-        warn("Partly there - still missing: " + ", ".join(sorted(missing)))
-    else:
-        warn("Still pointing somewhere else (the old Carrd page).")
+        ok("All four GitHub A records are live.")
+
+    if strays:
+        warn("LEFTOVER record(s) still in rotation: " + ", ".join(strays))
+        share = len(strays) * 100 // max(len(ips), 1)
+        say("  " + RED + "  ~%d%% of visitors will land on the OLD site." % share + OFF)
+        say("  " + DIM + "Delete these A records at Namecheap, then re-run this." + OFF)
+    elif not on_github:
+        warn("Not pointing at GitHub Pages at all.")
         say("  " + DIM + "Add the four A records at Namecheap - see DEPLOY.md part 2." + OFF)
 
     step("Checking what the domain actually serves")

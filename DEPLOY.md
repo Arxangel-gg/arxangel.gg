@@ -53,11 +53,24 @@ about. This is simpler than it looks.)
 
 Go to **Namecheap → Domain List → `arxangel.gg` → Manage → Advanced DNS**.
 
-### 2a. Remove the old records
+### 2a. Remove the old records — NOT optional
 
-Delete the existing `A Record` / `ALIAS` / `CNAME` entries for host `@` and
-host `www` that currently point at Carrd. Screenshot them first if you want a
-way back.
+Adding the new records is only half of it. DNS **round-robins across every A
+record on a host**, so any leftover address keeps taking a share of your
+traffic. Delete exactly these two:
+
+| Delete | Type | Host | Value | Why |
+|---|---|---|---|---|
+| ❌ | A Record | `@` | `172.66.0.70` | Carrd. Left in place, ~20% of visitors get the old page. |
+| ❌ | CNAME Record | `www` | `arxangel.gg.` | Duplicate: a host may only ever have **one** CNAME, and this old one wins over the new one. |
+
+**Leave everything else alone**, in particular:
+
+| Keep | Type | Host | Why |
+|---|---|---|---|
+| ✅ | CNAME | `beastroad` | A different project on its own subdomain — unrelated. |
+| ✅ | TXT | `_github-pages-…` | GitHub's domain verification. Protects you from domain takeover. |
+| ✅ | TXT | `@` (`v=spf1 …`) | Email forwarding. Deleting it breaks mail. |
 
 ### 2b. Add GitHub's records
 
