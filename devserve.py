@@ -1,6 +1,7 @@
 """Local dev server for the ARXANGEL site with caching DISABLED.
 Serves ./site so edits to JS/CSS modules are always picked up on reload.
-(Production caching is handled by Netlify via site/_headers — this is dev only.)"""
+(Production is GitHub Pages, which ignores _headers — cache-busting there is the
+?v= token bumped by tools/arx.py. This server is dev only.)"""
 import functools
 import http.server
 import socketserver

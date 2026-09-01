@@ -64,11 +64,12 @@ export const CONFIG = {
     artistUrl: "https://open.spotify.com/artist/0aT62hqUqTkgTmeYfgUy4n",
     artistId:  "0aT62hqUqTkgTmeYfgUy4n",
     featuredTitle: "SUMMONED",   // pinned first in the playlist; "" = newest first
-    // OPTIONAL zero-touch auto-populate: a Netlify function (see README §7) that
-    // reads your whole Spotify catalog, so EVERY future release appears with no
-    // edits. If it isn't deployed (or has no credentials) the site falls back to
-    // data.releasesUrl. Set to "" to disable and use only releases.json.
-    releasesEndpoint: "/.netlify/functions/releases",
+    // The playlist is auto-populated at DEPLOY time, not in the browser: the
+    // nightly GitHub Action (and tools/arx.py / RELEASE.bat when you run it)
+    // reads your public Spotify catalog and writes data/releases.json. So this
+    // stays "" — there is no live endpoint to call, which means one less
+    // network round-trip on every page load and nothing to break at runtime.
+    releasesEndpoint: "",
   },
 
   /* ---- Primary platform links (nav + community). "" hides the button. ----- */
@@ -91,7 +92,9 @@ export const CONFIG = {
     // host is added automatically; list any OTHER ancestor domains here too —
     // your custom domain AND, if you embed the site in Carrd, your Carrd domain
     // (e.g. "yoursite.carrd.co"), since Twitch sits two iframes deep.
-    twitchParents: ["arxangel.gg", "roaring-sundae-d0aff7.netlify.app", "localhost"],
+    // The host actually serving the page is added automatically at runtime, so
+    // the *.github.io fallback URL works without being listed here.
+    twitchParents: ["arxangel.gg", "www.arxangel.gg", "localhost"],
     // Optional existing micro-apps (kept off by default to stay fast & premium).
     consoleUrl: "https://sunny-sunshine-29825a.netlify.app",
     betsUrl:    "https://marvelous-biscotti-6276f1.netlify.app",

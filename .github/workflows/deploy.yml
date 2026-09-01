@@ -1,0 +1,54 @@
+# ============================================================================
+#  ARXANGEL - deploy site/ to GitHub Pages
+# ----------------------------------------------------------------------------
+#  Runs on every push to main. There is no build step: the site is plain HTML,
+#  CSS and ES modules, so we upload site/ exactly as it sits in the repo.
+#  Typical run time is well under a minute.
+#
+#  Also exposed as `workflow_call` so sync-releases.yml can deploy directly.
+#  That matters: a commit pushed by a workflow using the default GITHUB_TOKEN
+#  deliberately does NOT trigger `on: push`, so the nightly sync has to call
+#  this workflow itself rather than rely on its own commit firing it.
+# ============================================================================
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/deploy.yml"
+  # Lets you redeploy by hand from the Actions tab without pushing anything.
+  workflow_dispatch:
+  # Lets sync-releases.yml deploy after it commits a new track.
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; queue them instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload site/
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,17 +1,31 @@
 {
-  "$comment": "ARXΛNGΞL discography — the no-backend fallback for the playlist. If the Netlify Spotify function (CONFIG.music.releasesEndpoint, see README §7) is deployed, it OVERRIDES this list and your whole catalog auto-populates with zero edits. Otherwise, add a release object below (title + spotifyTrack id + cover URL — grab the 640px cover from i.scdn.co) and it appears in the playlist. SUMMONED is pinned first via CONFIG.music.featuredTitle; the newest releaseDate gets the 'Latest' tag.",
+  "$comment": "ARXANGEL discography. GENERATED FILE - do not hand-edit unless you have to. It is rebuilt from your public Spotify catalog by tools/arx.py (double-click RELEASE.bat) and by the nightly \"Sync releases from Spotify\" GitHub Action. Fields you customise - a stylised title like SUMMONED, and \"featured\": true - are PRESERVED across syncs, matched on title. SUMMONED is pinned first via CONFIG.music.featuredTitle; the newest releaseDate gets the \"Latest\" tag.",
   "releases": [
     {
-      "id": "summoned",
-      "title": "SUMMONED",
+      "id": "stay-here-with-me",
+      "title": "Stay Here With Me",
       "type": "Single",
       "year": "2026",
-      "releaseDate": "2026-05-09",
-      "cover": "https://i.scdn.co/image/ab67616d0000b27370ea0d5c62dcd6147d4850d9",
+      "releaseDate": "2026-08-31",
+      "cover": "https://i.scdn.co/image/ab67616d0000b273f3e434a8d0086b2686689a6f",
       "spotifyType": "track",
-      "spotifyTrack": "7peXDPy5HHonqdJm5tztRT",
-      "featured": true,
-      "links": { "spotify": "https://open.spotify.com/track/7peXDPy5HHonqdJm5tztRT" }
+      "spotifyTrack": "17rMvQc8RKhpONygYxLIOY",
+      "links": {
+        "spotify": "https://open.spotify.com/track/17rMvQc8RKhpONygYxLIOY"
+      }
+    },
+    {
+      "id": "midnight-caravan",
+      "title": "Midnight Caravan",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-08-09",
+      "cover": "https://i.scdn.co/image/ab67616d0000b273e6f6697e12cbfdc5f67a8136",
+      "spotifyType": "track",
+      "spotifyTrack": "1MtkgQhHX6m5ZcAOesHity",
+      "links": {
+        "spotify": "https://open.spotify.com/track/1MtkgQhHX6m5ZcAOesHity"
+      }
     },
     {
       "id": "ultra-instinct-every-day",
@@ -22,7 +36,9 @@
       "cover": "https://i.scdn.co/image/ab67616d0000b273110c01d4a29b711b9abb4aee",
       "spotifyType": "track",
       "spotifyTrack": "1cXQmStpoadC0ycFPVrIxs",
-      "links": { "spotify": "https://open.spotify.com/track/1cXQmStpoadC0ycFPVrIxs" }
+      "links": {
+        "spotify": "https://open.spotify.com/track/1cXQmStpoadC0ycFPVrIxs"
+      }
     },
     {
       "id": "warrior",
@@ -33,7 +49,9 @@
       "cover": "https://i.scdn.co/image/ab67616d0000b27305bbcfa99e7206ce29d96207",
       "spotifyType": "track",
       "spotifyTrack": "3sNBmx2rbMXatGJ9bKIBlT",
-      "links": { "spotify": "https://open.spotify.com/track/3sNBmx2rbMXatGJ9bKIBlT" }
+      "links": {
+        "spotify": "https://open.spotify.com/track/3sNBmx2rbMXatGJ9bKIBlT"
+      }
     },
     {
       "id": "sifu-sufi",
@@ -44,7 +62,23 @@
       "cover": "https://i.scdn.co/image/ab67616d0000b2735a3980e64c6444ad6abe1e19",
       "spotifyType": "track",
       "spotifyTrack": "4pG5rl5Ki4pntvLAfxZeYb",
-      "links": { "spotify": "https://open.spotify.com/track/4pG5rl5Ki4pntvLAfxZeYb" }
+      "links": {
+        "spotify": "https://open.spotify.com/track/4pG5rl5Ki4pntvLAfxZeYb"
+      }
+    },
+    {
+      "id": "summoned",
+      "title": "SUMMONED",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-06-15",
+      "cover": "https://i.scdn.co/image/ab67616d0000b27370ea0d5c62dcd6147d4850d9",
+      "spotifyType": "track",
+      "spotifyTrack": "7peXDPy5HHonqdJm5tztRT",
+      "featured": true,
+      "links": {
+        "spotify": "https://open.spotify.com/track/7peXDPy5HHonqdJm5tztRT"
+      }
     }
   ]
 }

@@ -16,8 +16,8 @@
 // ?v= cache-bust token (also on the css links + js/main.js in index.html).
 // Freshness is already guaranteed by netlify _headers (must-revalidate); bumping
 // this is just an optional hard override to force every client to refetch.
-import { CONFIG } from "./config.js?v=2";
-import { env, $, $$, onReady } from "./env.js?v=2";
+import { CONFIG } from "./config.js?v=3";
+import { env, $, $$, onReady } from "./env.js?v=3";
 
 /* ---- Embed mode --------------------------------------------------------- */
 if (env.isEmbed) document.documentElement.classList.add("is-embed");
@@ -178,24 +178,24 @@ function loadFeatures() {
   const f = CONFIG.features;
 
   // Reveal animations (core); skip entirely for reduced-motion (CSS shows content).
-  if (!env.reduceMotion) import("./modules/reveal.js?v=2").then((m) => m.init());
+  if (!env.reduceMotion) import("./modules/reveal.js?v=3").then((m) => m.init());
 
   // Releases: the auto-populating playlist + modal player.
-  import("./modules/releases.js?v=2").then((m) => m.init(CONFIG)).catch(() => {});
+  import("./modules/releases.js?v=3").then((m) => m.init(CONFIG)).catch(() => {});
 
   // Feature flags: show/hide the Bets section etc. (remote + per-device).
-  import("./modules/flags.js?v=2").then((m) => m.init(CONFIG)).catch(() => {});
+  import("./modules/flags.js?v=3").then((m) => m.init(CONFIG)).catch(() => {});
 
   // Share transmission (native sheet → popover fallback).
-  import("./modules/share.js?v=2").then((m) => m.init(CONFIG)).catch(() => {});
+  import("./modules/share.js?v=3").then((m) => m.init(CONFIG)).catch(() => {});
 
   // Audio: the ambient visit sound + optional sound pill.
-  import("./modules/audio.js?v=2").then((m) => m.init(CONFIG, env)).catch(() => {});
+  import("./modules/audio.js?v=3").then((m) => m.init(CONFIG, env)).catch(() => {});
 
-  if (f.intro && !env.isEmbed) import("./modules/intro.js?v=2").then((m) => m.init()).catch(() => {});
-  if (f.ambientFX && !env.reduceMotion && !env.saveData && !env.isEmbed) import("./modules/ambient.js?v=2").then((m) => m.init(env)).catch(() => {});
-  if (f.crosshair && env.finePointer && !env.isEmbed) import("./modules/cursor.js?v=2").then((m) => m.init()).catch(() => {});
-  if (f.quotes && !env.isEmbed) import("./modules/quotes.js?v=2").then((m) => m.init(CONFIG)).catch(() => {});
+  if (f.intro && !env.isEmbed) import("./modules/intro.js?v=3").then((m) => m.init()).catch(() => {});
+  if (f.ambientFX && !env.reduceMotion && !env.saveData && !env.isEmbed) import("./modules/ambient.js?v=3").then((m) => m.init(env)).catch(() => {});
+  if (f.crosshair && env.finePointer && !env.isEmbed) import("./modules/cursor.js?v=3").then((m) => m.init()).catch(() => {});
+  if (f.quotes && !env.isEmbed) import("./modules/quotes.js?v=3").then((m) => m.init(CONFIG)).catch(() => {});
 }
 
 /* ---- Boot --------------------------------------------------------------- */

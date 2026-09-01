@@ -1,0 +1,74 @@
+# ============================================================================
+#  ARXANGEL - nightly Spotify catalog sync
+# ----------------------------------------------------------------------------
+#  The zero-touch half of the release pipeline. Every night this reads your
+#  PUBLIC Spotify artist page (no credentials, no secrets to set up), rewrites
+#  site/data/releases.json, commits if anything changed, and then deploys.
+#
+#  So: drop a song on Spotify, do nothing, and the site catches up within a day.
+#  Want it live immediately instead? Run tools/arx.py (or double-click
+#  RELEASE.bat), or hit "Run workflow" on this one from the Actions tab.
+#
+#  If Spotify ever changes their page markup the sync fails LOUDLY (the job goes
+#  red and GitHub emails you) and releases.json is left untouched - the site
+#  keeps serving the last known-good playlist rather than an empty one.
+# ============================================================================
+name: Sync releases from Spotify
+
+on:
+  schedule:
+    # 09:15 UTC daily. GitHub runs scheduled jobs best-effort and may delay
+    # them under load; exact timing does not matter here.
+    - cron: "15 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: sync-releases
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # arx.py is standard library only - nothing to install.
+      - name: Sync releases.json from the public Spotify catalog
+        run: python tools/arx.py sync
+
+      - name: Commit if the catalog changed
+        id: commit
+        run: |
+          if git diff --quiet -- site/data/releases.json; then
+            echo "No new releases - nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          LATEST=$(python -c "import json;print(json.load(open('site/data/releases.json',encoding='utf-8'))['releases'][0]['title'])")
+          git config user.name  "arxangel-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/releases.json
+          git commit -m "Sync releases from Spotify (latest: $LATEST)"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  # Only runs when the sync actually changed something.
+  deploy:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

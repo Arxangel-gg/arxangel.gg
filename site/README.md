@@ -1,7 +1,7 @@
 # ARXANGEL — Flagship Site
 
 The official home of **ARXANGEL** — a dependency-free, production-ready static site
-built for Netlify. Cinematic hero, the **SUMMONED** release centerpiece with a custom
+built for GitHub Pages. Cinematic hero, the **SUMMONED** release centerpiece with a custom
 player, the Order pillars, a lazy Twitch facade, ambient FX, and a cinematic intro —
 all driven by one config file and fully embeddable in Carrd.
 
@@ -30,13 +30,25 @@ site/
 │       ├── quotes.js       # rotating transmission line
 │       └── releases.js     # featured cover swap + "The Vault" grid
 ├── data/
-│   └── releases.json       # ★ EDIT THIS — discography (add future releases here)
+│   └── releases.json       # GENERATED — rebuilt by tools/arx.py, don't hand-edit
 ├── assets/                 # logo.svg, og-image, key-art, generated app icons
 ├── fonts/                  # cinzel.woff2, inter.woff2 (variable, latin subset)
 ├── media/                  # bg.webm / bg.mp4 (optimized) + posters
 ├── favicon.svg, site.webmanifest, robots.txt, sitemap.xml
-├── _headers                # caching + security (framing left open for Carrd)
-└── netlify.toml            # config for Git-based deploys
+├── CNAME                   # custom domain for GitHub Pages (arxangel.gg)
+├── .nojekyll               # tell Pages to serve files as-is
+└── _headers                # inert on Pages; kept for portability to Cloudflare
+```
+
+Outside `site/`, in the repo root:
+
+```
+├── RELEASE.bat             # ★ DOUBLE-CLICK THIS when a new track is out
+├── DEPLOY.md               # setup + day-to-day runbook
+├── tools/arx.py            # the release tool (stdlib Python, no installs)
+└── .github/workflows/
+    ├── deploy.yml          # publishes site/ to GitHub Pages on push
+    └── sync-releases.yml   # nightly Spotify catalog sync
 ```
 
 ---
@@ -86,32 +98,38 @@ npx serve site
 
 ---
 
-## 4. Deploy to Netlify
+## 4. Deploy (GitHub Pages)
 
-### Option A — Drag & drop (fastest)
-1. Go to <https://app.netlify.com/drop>.
-2. Drag the **`site`** folder onto the page.
-3. Done — you get a `*.netlify.app` URL. `_headers` is applied automatically.
+The site is published by **GitHub Pages** from the `site/` folder. There is no
+build step and no third-party dashboard.
 
-### Option B — Git / continuous deploy
-1. Push the repo to GitHub/GitLab.
-2. In Netlify: **Add new site → Import an existing project**.
-3. Set **Base directory** = `site` and **Publish directory** = `site` (or `.`).
-   Leave the build command empty (it's static). `netlify.toml` handles the rest.
+**Full setup instructions live in [`../DEPLOY.md`](../DEPLOY.md)** — repo
+creation, Pages activation, and pointing `arxangel.gg` at it via Cloudflare.
 
-### Custom domain (`arxangel.gg`)
-Netlify → **Domain settings → Add a domain** → point your DNS (Netlify DNS or a
-`CNAME`/`A` record) at the site. HTTPS is automatic. This makes the Netlify site the
-real `arxangel.gg` — the recommended setup (see §5).
+The short version, once it's set up:
+
+```bash
+git add -A && git commit -m "what changed" && git push
+```
+
+`.github/workflows/deploy.yml` uploads `site/` to Pages on every push to `main`.
+A deploy takes well under a minute.
+
+> **No custom headers.** GitHub Pages does not honour `site/_headers` — that file
+> is Netlify/Cloudflare-Pages syntax and is kept only for portability. Cache
+> control is handled instead by the `?v=` token on the CSS and JS URLs; bump it
+> with `python tools/arx.py refresh` when you need every visitor to re-fetch.
 
 ---
 
 ## 5. Carrd integration
 
-You have two paths. **Recommended:** make this Netlify site your primary
-`arxangel.gg` (§4 custom domain) and retire the Carrd page — it's a full flagship
-site, not a widget. But if you want to **embed it inside an existing Carrd page**,
-use the code below.
+> **This section is now legacy.** `arxangel.gg` points at this site directly
+> (see [`../DEPLOY.md`](../DEPLOY.md) part 2) and the Carrd page is retired. The
+> embed recipes below are kept in case you ever want to drop the site into
+> another page.
+
+If you do want to **embed it inside a Carrd page**, use the code below.
 
 ### A) Full-screen takeover (recommended) — the site IS the page
 
@@ -124,7 +142,7 @@ site, with the **full experience** (nav, intro, hero, FX, sound). In Carrd add a
 <iframe
   id="axFlagshipFrame"
   title="ARXANGEL"
-  src="https://roaring-sundae-d0aff7.netlify.app/"
+  src="https://arxangel.gg/"
   style="position:fixed; inset:0; width:100%; height:100%; border:0; margin:0; padding:0; z-index:2147483000; background:#07060a;"
   allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
   referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -149,11 +167,8 @@ site, with the **full experience** (nav, intro, hero, FX, sound). In Carrd add a
   stripped widget. The iframe is its own full viewport, so the fixed nav, intro and
   internal scrolling all behave exactly like the standalone site.
 - The `background:#07060a` avoids a white flash before the site paints.
-- Already using your live URL `roaring-sundae-d0aff7.netlify.app`. Swap it if you move
-  to a custom domain.
-
-> Even simpler if you're willing: point `arxangel.gg` straight at Netlify (§4) and skip
-> Carrd entirely — same result with one less layer.
+- Swap the `src` for whichever URL is serving the site — your
+  `YOUR-USERNAME.github.io` address, or `arxangel.gg` once DNS is cut over.
 
 ### B) Inline widget (optional) — boxed panel inside a normal Carrd layout
 
@@ -165,7 +180,7 @@ to fit:
 ```html
 <div style="width:100%;max-width:1280px;margin:0 auto;">
   <iframe id="axFlagshipFrame" title="ARXANGEL"
-    src="https://roaring-sundae-d0aff7.netlify.app/?embed=1"
+    src="https://arxangel.gg/?embed=1"
     style="width:100%;height:760px;border:0;display:block;background:transparent;border-radius:18px;"
     loading="lazy" allowtransparency="true"
     allow="autoplay; fullscreen; clipboard-write"></iframe>
@@ -197,7 +212,7 @@ In `js/config.js` add **every** domain that serves the page:
 ```js
 embeds: {
   twitchChannel: "arxangel_gg",
-  twitchParents: ["arxangel.gg", "your-site.netlify.app", "localhost"],
+  twitchParents: ["arxangel.gg", "your-username.github.io", "localhost"],
 }
 ```
 
@@ -233,21 +248,27 @@ the oEmbed thumbnail and swap `00001e02` → `0000b273` in the image path):
 `music.featuredTitle` in `config.js` pins one release first (currently `SUMMONED`);
 the newest `releaseDate` gets the **Latest** tag.
 
-### Auto mode — pull your whole Spotify catalog (zero edits, ever)
-The Netlify function `netlify/functions/releases.js` fetches your entire
-discography so **new drops appear by themselves**. One-time setup:
+### Auto mode — the release tool (no credentials needed)
+`data/releases.json` is a **generated file**. It is rebuilt from your public
+Spotify artist page by `tools/arx.py`:
 
-1. <https://developer.spotify.com/dashboard> → **Create app** → copy the
-   **Client ID** + **Client secret** (any redirect URI — we never use login).
-2. Netlify → **Site configuration → Environment variables**, add:
-   - `SPOTIFY_CLIENT_ID`
-   - `SPOTIFY_CLIENT_SECRET`
-   - `SPOTIFY_ARTIST_ID` = `0aT62hqUqTkgTmeYfgUy4n` *(optional; already the default)*
-3. Redeploy. The site calls `/.netlify/functions/releases` (cached ~15 min).
+```bash
+python tools/arx.py publish     # or just double-click RELEASE.bat
+```
 
-Until then the function returns 503 and the site **silently falls back** to
-`releases.json`, so it always works. (Functions ship automatically on a Git deploy,
-and are bundled in a drag-and-drop deploy of the `site` folder too.)
+That reads your whole catalog, adds anything new, bumps the cache token, commits
+and pushes — the site is live a minute later. The same script also runs nightly
+as the **Sync releases from Spotify** GitHub Action, so a new drop appears on the
+site by itself within a day even if you never run anything.
+
+Fields you customise by hand are **preserved across syncs**, matched on title:
+the stylised `SUMMONED` casing and the `"featured": true` flag both survive.
+
+This needs **no Spotify developer account and no client secret** — it reads the
+same public page a search engine sees. (The old `netlify/functions/releases.js`,
+which did need API credentials that were never configured, has been deleted.)
+
+See [`../DEPLOY.md`](../DEPLOY.md) for the full command list.
 
 > Spotify embeds follow the **visitor's system theme** (dark under dark mode, which
 > matches the site for most of the audience). Spotify doesn't allow forcing it from
