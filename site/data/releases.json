@@ -2,6 +2,19 @@
   "$comment": "ARXANGEL discography. GENERATED FILE - do not hand-edit unless you have to. It is rebuilt from your public Spotify catalog by tools/arx.py (double-click RELEASE.bat) and by the nightly \"Sync releases from Spotify\" GitHub Action. Fields you customise - a stylised title like SUMMONED, and \"featured\": true - are PRESERVED across syncs, matched on title. SUMMONED is pinned first via CONFIG.music.featuredTitle; the newest releaseDate gets the \"Latest\" tag.",
   "releases": [
     {
+      "id": "stay-here-with-me",
+      "title": "Stay Here With Me",
+      "type": "Single",
+      "year": "2026",
+      "releaseDate": "2026-08-31",
+      "cover": "https://i.scdn.co/image/ab67616d0000b273f3e434a8d0086b2686689a6f",
+      "spotifyType": "track",
+      "spotifyTrack": "17rMvQc8RKhpONygYxLIOY",
+      "links": {
+        "spotify": "https://open.spotify.com/track/17rMvQc8RKhpONygYxLIOY"
+      }
+    },
+    {
       "id": "midnight-caravan",
       "title": "Midnight Caravan",
       "type": "Single",
